@@ -4,6 +4,7 @@ import {
     ChevronRight, ArrowLeft, Home,
     Users, Building2, Vote, Globe
 } from 'lucide-react';
+import { buildPath } from '../../../lib/utils/paths';
 import MapViewWrapper from '../MapViewWrapper';
 import { DEPARTMENTS, ENTITY_TYPES, RESULTS_PREVIEW_LIMIT } from './constants';
 import { useMapFilters } from './hooks/useMapFilters';
@@ -204,12 +205,12 @@ const MapPage: React.FC = () => {
                                                         </p>
                                                     </div>
                                                 </div>
-                                                <a
-                                                    href={`/entity?id=${selectedEntityId}`}
-                                                    className="px-4 py-2 bg-primary-green text-hunter rounded-lg text-xs font-bold hover:scale-105 transition-transform"
-                                                >
-                                                    Ver Detalles
-                                                </a>
+                                <a
+                                    href={buildPath(`/entity?id=${selectedEntityId}`)}
+                                    className="px-4 py-2 bg-primary-green text-hunter rounded-lg text-xs font-bold hover:scale-105 transition-transform"
+                                >
+                                    Ver Detalles
+                                </a>
                                             </div>
                                         </div>
                                     )}
@@ -279,12 +280,12 @@ const MapPage: React.FC = () => {
                                         {/* Ver Todos button */}
                                         {entities.length > RESULTS_PREVIEW_LIMIT && (
                                             <div className="shrink-0 pt-4 border-t border-primary-green/10">
-                                                <a
-                                                    href={`/search?department=${encodeURIComponent(selectedDepartment)}&type=${encodeURIComponent(selectedType)}&q=${encodeURIComponent(searchQuery)}`}
-                                                    className="w-full block bg-primary-green text-hunter p-4 rounded-2xl font-bold text-sm text-center hover:scale-[1.02] transition-transform"
-                                                >
-                                                    Ver todos los resultados ({entities.length})
-                                                </a>
+                                <a
+                                    href={buildPath(`/search?department=${encodeURIComponent(selectedDepartment)}&type=${encodeURIComponent(selectedType)}&q=${encodeURIComponent(searchQuery)}`)}
+                                    className="w-full block bg-primary-green text-hunter p-4 rounded-2xl font-bold text-sm text-center hover:scale-[1.02] transition-transform"
+                                >
+                                    Ver todos los resultados ({entities.length})
+                                </a>
                                             </div>
                                         )}
                                     </>

@@ -10,6 +10,7 @@ import { useSearch } from "./hooks/useSearch";
 import { useClickOutside } from "./hooks/useClickOutside";
 import { logger } from "../../../lib/logger";
 import ResultsDropdownHeader from "./components/ResultsDropdownHeader";
+import { buildPath } from "../../../lib/utils/paths";
 
 interface SearchCommandProps {
   onSelect: (entity: Entity) => void;
@@ -100,7 +101,9 @@ const SearchCommandComponent: React.FC<SearchCommandProps> = ({
           if (e.key === "Enter" && query.trim().length > 0) {
             e.preventDefault();
             console.log("SearchCommand: Enter pressed, query:", query);
-            const searchUrl = `/search?q=${encodeURIComponent(query.trim())}`;
+            const searchUrl = buildPath(
+              `/search?q=${encodeURIComponent(query.trim())}`,
+            );
             console.log("SearchCommand: Navigating to:", searchUrl);
             // Force full page reload to preserve query params (bypass View Transitions)
             window.location.href = searchUrl;
@@ -122,7 +125,9 @@ const SearchCommandComponent: React.FC<SearchCommandProps> = ({
             onClick={() => {
               console.log("SearchCommand: Button clicked, query:", query);
               if (query.trim().length > 0) {
-                const searchUrl = `/search?q=${encodeURIComponent(query.trim())}`;
+                const searchUrl = buildPath(
+                  `/search?q=${encodeURIComponent(query.trim())}`,
+                );
                 console.log("SearchCommand: Navigating to:", searchUrl);
                 window.location.href = searchUrl;
               } else {
@@ -144,7 +149,7 @@ const SearchCommandComponent: React.FC<SearchCommandProps> = ({
             {results.map((entity) => (
               <li key={entity.$id}>
                 <a
-                  href={`/entity?id=${entity.$id}`}
+                  href={buildPath(`/entity?id=${entity.$id}`)}
                   onMouseDown={(e) => {
                     // Save to recent history on mouse down
                     saveRecentEntity(entity);

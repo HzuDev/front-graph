@@ -276,9 +276,9 @@ import { MapPin, Globe, ArrowRight, Loader2 } from "lucide-react";
                                 "bg-green-600",
                             );
 
-                            setTimeout(() => {
-                                window.location.href = "/onboarding/3";
-                            }, 1500);
+                             setTimeout(() => {
+                                 window.location.href = import.meta.env.BASE_URL + "/onboarding/3";
+                             }, 1500);
                         } else {
                             // No municipality found
                             if (originalContent instanceof Node) {
@@ -541,7 +541,7 @@ import { MapPin, Globe, ArrowRight, Loader2 } from "lucide-react";
                     "detected_municipality",
                     JSON.stringify(locationData),
                 );
-                window.location.href = "/onboarding/3";
+                window.location.href = import.meta.env.BASE_URL + "/onboarding/3";
             }
         });
     }

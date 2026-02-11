@@ -1,5 +1,6 @@
 import React, { useMemo, memo } from 'react';
 import { ArrowLeft, MapPin, Calendar, Globe, Tag, Link as LinkIcon, Building2, ArrowRight, ExternalLink } from 'lucide-react';
+import { buildPath } from '../../lib/utils/paths';
 import type { Entity, Claim } from '../../lib/queries';
 
 // ============ CONSTANTES ============
@@ -49,7 +50,7 @@ const renderClaimValue = (claim: Claim) => {
 
         return (
             <a
-                href={`/entity?id=${relationId}`}
+                href={buildPath(`/entity?id=${relationId}`)}
                 className="inline-flex items-center gap-1 text-primary-green hover:text-[#2d5a42] transition-colors border-b border-primary-green/10 hover:border-[#2d5a42]/50 pb-0.5 group"
             >
                 {relationLabel}
@@ -324,7 +325,7 @@ const PropertyCardIncoming = memo<{
                 return (
                     <div key={claim.$id}>
                         <a
-                            href={`/entity?id=${subjectId}`}
+                            href={buildPath(`/entity?id=${subjectId}`)}
                             className="inline-flex items-center gap-1 text-primary-green text-base font-medium hover:text-[#2d5a42] transition-colors border-b border-primary-green/10 hover:border-[#2d5a42]/50 pb-0.5 group"
                         >
                             {subjectLabel}

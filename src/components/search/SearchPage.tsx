@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { fetchEntitiesFiltered } from "../../lib/queries";
 import type { Entity } from "../../lib/queries";
+import { buildPath } from "@/lib/utils/paths";
 
 // ============ CONSTANTES ============
 const ITEMS_PER_PAGE = 24;
@@ -71,7 +72,7 @@ interface SearchPageProps {
 // EntityCard component (OPTIMIZED: extracted and memoized)
 const EntityCard = memo<{ entity: Entity }>(({ entity }) => (
   <a
-    href={`/entity?id=${entity.$id}`}
+    href={buildPath(`/entity?id=${entity.$id}`)}
     className="bg-white border border-primary-green/5 p-6 rounded-2xl hover:shadow-lg hover:border-primary-green/20 transition-all group"
   >
     <h3 className="font-bold text-base mb-2 leading-tight group-hover:text-primary-green transition-colors">

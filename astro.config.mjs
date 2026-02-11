@@ -7,11 +7,8 @@ import react from "@astrojs/react";
 export default defineConfig({
   output: "static",
   // Configuración para GitHub Pages
-  // Cambia 'your-username' y 'your-repo-name' por tus valores reales
-  // Ejemplo: site: 'https://hzudev.github.io'
-  // Ejemplo: base: '/graph-astro-elecciones'
-  site: "https://your-username.github.io",
-  base: "/your-repo-name",
+  site: "https://hzudev.github.io",
+  base: "/front-graph",
   server: {
     port: 4321,
     host: true,

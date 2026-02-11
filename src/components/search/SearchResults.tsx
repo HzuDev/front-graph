@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Loader2, Search as SearchIcon } from 'lucide-react';
+import { buildPath } from '../../lib/utils/paths';
 import { fetchEntities, type Entity } from '../../lib/queries';
 
 export const SearchResults: React.FC = () => {
@@ -102,7 +103,7 @@ export const SearchResults: React.FC = () => {
                 {results.map(entity => (
                     <a 
                         key={entity.$id}
-                        href={`/entity?id=${entity.$id}`}
+                        href={buildPath(`/entity?id=${entity.$id}`)}
                         className="group bg-white border border-primary-green/5 p-6 rounded-[2rem] hover:border-primary-green hover:shadow-2xl hover:shadow-primary-green/5 transition-all cursor-pointer relative overflow-hidden"
                     >
                         <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">

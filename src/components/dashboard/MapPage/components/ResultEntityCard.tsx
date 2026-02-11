@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 import { ChevronRight } from 'lucide-react';
+import { buildPath } from '../../../../lib/utils/paths';
 import type { Entity } from '../../../../lib/queries';
 
 const ResultEntityCard = memo(({ entity, isSelected, onSelect }: {
@@ -25,7 +26,7 @@ const ResultEntityCard = memo(({ entity, isSelected, onSelect }: {
             </p>
         )}
         <a
-            href={`/entity?id=${entity.$id}`}
+            href={buildPath(`/entity?id=${entity.$id}`)}
             onClick={(e) => e.stopPropagation()}
             className="text-xs font-bold text-primary-green hover:underline flex items-center gap-1"
         >
