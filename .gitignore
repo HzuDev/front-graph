@@ -28,6 +28,7 @@ lerna-debug.log*
 # AI and development tools
 .cursor/
 .agent/
+.agents/
 .ai/
 *.agent.json
 .github/copilot/
