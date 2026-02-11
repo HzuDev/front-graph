@@ -42,7 +42,7 @@ import { MapPin, Globe, ArrowRight, Loader2 } from "lucide-react";
 
     <!-- Background Icon -->
     <div slot="background-icon" class="animate-float">
-        <MapPin size={460} strokeWidth={0.5} color=hunter />
+        <MapPin size={460} strokeWidth={0.5} color="hunter" />
     </div>
 
     <!-- Right Content -->
@@ -87,7 +87,7 @@ import { MapPin, Globe, ArrowRight, Loader2 } from "lucide-react";
     <div slot="actions" class="space-y-4">
         <button
             id="btn-location"
-            class="w-full group bg-primary-green  text-hunter p-5 rounded-2xl font-bold text-lg flex items-center justify-between hover:shadow-2xl hover:shadow-primary-green/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
+            class="w-full group bg-primary-green text-hunter p-5 rounded-2xl font-bold text-lg flex items-center justify-between hover:shadow-2xl hover:shadow-primary-green/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
         >
             <span class="flex items-center gap-2">
                 <MapPin className="w-5 h-5" />
@@ -120,7 +120,7 @@ import { MapPin, Globe, ArrowRight, Loader2 } from "lucide-react";
             <button
                 id="continue-btn"
                 disabled
-                class="w-full bg-primary-green/5  p-5 rounded-2xl font-bold text-lg hover:bg-primary-green/10 text-primary-green transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between"
+                class="w-full bg-primary-green/5 p-5 rounded-2xl font-bold text-lg hover:bg-primary-green/10 text-primary-green transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between"
             >
                 <span>Continuar</span>
                 <ArrowRight className="w-5 h-5" />
@@ -134,33 +134,45 @@ import { MapPin, Globe, ArrowRight, Loader2 } from "lucide-react";
 
     // Helper para actualizar contenido del botón de forma segura
     function setButtonContent(button: HTMLElement, content: string) {
-        button.innerHTML = '';
-        const span = document.createElement('span');
-        span.className = 'flex items-center justify-center gap-2 w-full';
+        button.innerHTML = "";
+        const span = document.createElement("span");
+        span.className = "flex items-center justify-center gap-2 w-full";
         span.innerHTML = content;
         button.appendChild(span);
     }
 
     // Helper para crear SVG de spinner
     function createSpinner(): SVGElement {
-        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg.setAttribute('class', 'animate-spin h-5 w-5 text-hunter');
-        svg.setAttribute('fill', 'none');
-        svg.setAttribute('viewBox', '0 0 24 24');
-        
-        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        circle.setAttribute('class', 'opacity-25');
-        circle.setAttribute('cx', '12');
-        circle.setAttribute('cy', '12');
-        circle.setAttribute('r', '10');
-        circle.setAttribute('stroke', 'currentColor');
-        circle.setAttribute('stroke-width', '4');
-        
-        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        path.setAttribute('class', 'opacity-75');
-        path.setAttribute('fill', 'currentColor');
-        path.setAttribute('d', 'M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z');
-        
+        const svg = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "svg",
+        );
+        svg.setAttribute("class", "animate-spin h-5 w-5 text-hunter");
+        svg.setAttribute("fill", "none");
+        svg.setAttribute("viewBox", "0 0 24 24");
+
+        const circle = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "circle",
+        );
+        circle.setAttribute("class", "opacity-25");
+        circle.setAttribute("cx", "12");
+        circle.setAttribute("cy", "12");
+        circle.setAttribute("r", "10");
+        circle.setAttribute("stroke", "currentColor");
+        circle.setAttribute("stroke-width", "4");
+
+        const path = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "path",
+        );
+        path.setAttribute("class", "opacity-75");
+        path.setAttribute("fill", "currentColor");
+        path.setAttribute(
+            "d",
+            "M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z",
+        );
+
         svg.appendChild(circle);
         svg.appendChild(path);
         return svg;
@@ -192,20 +204,21 @@ import { MapPin, Globe, ArrowRight, Loader2 } from "lucide-react";
             if (!navigator.geolocation) {
                 errorMsg?.classList.remove("hidden");
                 if (errorMsg) {
-                    errorMsg.textContent = "Tu navegador no soporta geolocalización. Por favor, búscalo manualmente.";
+                    errorMsg.textContent =
+                        "Tu navegador no soporta geolocalización. Por favor, búscalo manualmente.";
                 }
                 return;
             }
 
             // Loading state
             const originalContent = locationBtn.cloneNode(true);
-            
-            locationBtn.innerHTML = '';
+
+            locationBtn.innerHTML = "";
             locationBtn.appendChild(createSpinner());
-            const span = document.createElement('span');
-            span.textContent = 'Obteniendo ubicación...';
+            const span = document.createElement("span");
+            span.textContent = "Obteniendo ubicación...";
             locationBtn.appendChild(span);
-            
+
             locationBtn.setAttribute("disabled", "true");
             errorMsg?.classList.add("hidden");
             successMsg?.classList.add("hidden");
@@ -218,13 +231,26 @@ import { MapPin, Globe, ArrowRight, Loader2 } from "lucide-react";
                     };
 
                     // Update button to show detection in progress
-                    locationBtn.innerHTML = '';
+                    locationBtn.innerHTML = "";
                     locationBtn.appendChild(createSpinner());
-                    const detectionSpan = document.createElement('span');
-                    detectionSpan.textContent = 'Detectando municipio...';
+                    const detectionSpan = document.createElement("span");
+                    detectionSpan.textContent = "Cargando mapas de Uruguay...";
                     locationBtn.appendChild(detectionSpan);
 
+                    // Show info message
+                    if (errorMsg) {
+                        errorMsg.textContent =
+                            "Esto puede tomar unos segundos la primera vez. Estamos cargando los datos geográficos...";
+                        errorMsg.className =
+                            "text-sm text-blue-600 dark:text-blue-400 mt-2";
+                        errorMsg.classList.remove("hidden");
+                    }
+
                     try {
+                        // Update message
+                        detectionSpan.textContent =
+                            "Detectando tu municipio...";
+
                         // Use Appwrite polygon intersection to find municipality
                         const municipality =
                             await findMunicipalityByCoordinates(
@@ -264,26 +290,38 @@ import { MapPin, Globe, ArrowRight, Loader2 } from "lucide-react";
                                 successMsg.classList.remove("hidden");
                             }
 
+                            // Hide info message
+                            if (errorMsg) {
+                                errorMsg.classList.add("hidden");
+                                errorMsg.className =
+                                    "text-sm text-red-600 dark:text-red-400 mt-2 hidden";
+                            }
+
                             // Success button state
-                            locationBtn.innerHTML = '';
-                            const successSpan = document.createElement('span');
-                            successSpan.className = 'flex items-center justify-center gap-2 w-full';
-                            successSpan.textContent = '✅ ¡Ubicación encontrada!';
+                            locationBtn.innerHTML = "";
+                            const successSpan = document.createElement("span");
+                            successSpan.className =
+                                "flex items-center justify-center gap-2 w-full";
+                            successSpan.textContent =
+                                "✅ ¡Ubicación encontrada!";
                             locationBtn.appendChild(successSpan);
-                            
+
                             locationBtn.classList.replace(
                                 "bg-primary-gretext-primary-green",
                                 "bg-green-600",
                             );
 
-                             setTimeout(() => {
-                                 window.location.href = import.meta.env.BASE_URL + "/onboarding/3";
-                             }, 1500);
+                            setTimeout(() => {
+                                window.location.href =
+                                    import.meta.env.BASE_URL + "/onboarding/3";
+                            }, 1500);
                         } else {
                             // No municipality found
                             if (originalContent instanceof Node) {
-                                locationBtn.innerHTML = '';
-                                locationBtn.appendChild(originalContent.cloneNode(true));
+                                locationBtn.innerHTML = "";
+                                locationBtn.appendChild(
+                                    originalContent.cloneNode(true),
+                                );
                             }
                             locationBtn.removeAttribute("disabled");
                             errorMsg?.classList.remove("hidden");
@@ -306,8 +344,10 @@ import { MapPin, Globe, ArrowRight, Loader2 } from "lucide-react";
                             );
                         }
                         if (originalContent instanceof Node) {
-                            locationBtn.innerHTML = '';
-                            locationBtn.appendChild(originalContent.cloneNode(true));
+                            locationBtn.innerHTML = "";
+                            locationBtn.appendChild(
+                                originalContent.cloneNode(true),
+                            );
                         }
                         locationBtn.removeAttribute("disabled");
                         errorMsg?.classList.remove("hidden");
@@ -322,8 +362,10 @@ import { MapPin, Globe, ArrowRight, Loader2 } from "lucide-react";
                         console.error(err);
                     }
                     if (originalContent instanceof Node) {
-                        locationBtn.innerHTML = '';
-                        locationBtn.appendChild(originalContent.cloneNode(true));
+                        locationBtn.innerHTML = "";
+                        locationBtn.appendChild(
+                            originalContent.cloneNode(true),
+                        );
                     }
                     locationBtn.removeAttribute("disabled");
                     errorMsg?.classList.remove("hidden");
@@ -356,16 +398,17 @@ import { MapPin, Globe, ArrowRight, Loader2 } from "lucide-react";
             searchTimeout = setTimeout(async () => {
                 try {
                     // Clear previous results
-                    searchResults.innerHTML = '';
-                    const loadingDiv = document.createElement('div');
-                    loadingDiv.className = 'p-3 text-sm text-primary-green/50';
-                    loadingDiv.textContent = 'Buscando...';
+                    searchResults.innerHTML = "";
+                    const loadingDiv = document.createElement("div");
+                    loadingDiv.className = "p-3 text-sm text-primary-green/50";
+                    loadingDiv.textContent = "Buscando...";
                     searchResults.appendChild(loadingDiv);
                     searchResults.classList.remove("hidden");
 
                     // Use OpenStreetMap Nominatim API
                     // Search for municipalities and provinces in Bolivia
-                    const nominatimUrl = `https://nominatim.openstreetmap.org/search?` +
+                    const nominatimUrl =
+                        `https://nominatim.openstreetmap.org/search?` +
                         `q=${encodeURIComponent(searchTerm)}&` +
                         `countrycodes=bo&` +
                         `format=json&` +
@@ -374,70 +417,104 @@ import { MapPin, Globe, ArrowRight, Loader2 } from "lucide-react";
 
                     const response = await fetch(nominatimUrl, {
                         headers: {
-                            'Accept': 'application/json',
-                            'User-Agent': 'EleccionesBolivia/1.0' // Required by Nominatim
-                        }
+                            Accept: "application/json",
+                            "User-Agent": "EleccionesBolivia/1.0", // Required by Nominatim
+                        },
                     });
-                    
+
                     const data = await response.json();
 
                     // Filter for municipalities, provinces, and cities
                     const locations = data.filter((item: any) => {
-                        const type = item.type || '';
-                        const addressType = item.address?.municipality || 
-                                          item.address?.city || 
-                                          item.address?.town || 
-                                          item.address?.village ||
-                                          item.address?.county;
-                        return addressType || 
-                               ['municipality', 'administrative', 'city', 'town', 'village', 'county'].includes(type);
+                        const type = item.type || "";
+                        const addressType =
+                            item.address?.municipality ||
+                            item.address?.city ||
+                            item.address?.town ||
+                            item.address?.village ||
+                            item.address?.county;
+                        return (
+                            addressType ||
+                            [
+                                "municipality",
+                                "administrative",
+                                "city",
+                                "town",
+                                "village",
+                                "county",
+                            ].includes(type)
+                        );
                     });
 
                     if (locations.length > 0) {
-                        searchResults.innerHTML = '';
+                        searchResults.innerHTML = "";
                         locations.forEach((place: any) => {
-                            const name = place.address?.municipality || 
-                                       place.address?.city || 
-                                       place.address?.town || 
-                                       place.address?.village ||
-                                       place.address?.county ||
-                                       place.name || 
-                                       place.display_name.split(',')[0];
-                            
-                            const region = place.address?.state || 
-                                         place.address?.region || 
-                                         'Bolivia';
-                            
-                            const btn = document.createElement('button');
-                            btn.type = 'button';
-                            btn.className = 'w-full text-left p-3 hover:bg-primary-gretext-primary-green/5 transition-colors border-b border-primary-gretext-primary-green/5 last:border-0';
-                            btn.setAttribute('data-municipality-name', name);
-                            btn.setAttribute('data-municipality-lat', place.lat);
-                            btn.setAttribute('data-municipality-lon', place.lon);
-                            btn.setAttribute('data-municipality-region', region);
-                            
-                            const nameDiv = document.createElement('div');
-                            nameDiv.className = 'font-semibold text-primary-green';
+                            const name =
+                                place.address?.municipality ||
+                                place.address?.city ||
+                                place.address?.town ||
+                                place.address?.village ||
+                                place.address?.county ||
+                                place.name ||
+                                place.display_name.split(",")[0];
+
+                            const region =
+                                place.address?.state ||
+                                place.address?.region ||
+                                "Bolivia";
+
+                            const btn = document.createElement("button");
+                            btn.type = "button";
+                            btn.className =
+                                "w-full text-left p-3 hover:bg-primary-gretext-primary-green/5 transition-colors border-b border-primary-gretext-primary-green/5 last:border-0";
+                            btn.setAttribute("data-municipality-name", name);
+                            btn.setAttribute(
+                                "data-municipality-lat",
+                                place.lat,
+                            );
+                            btn.setAttribute(
+                                "data-municipality-lon",
+                                place.lon,
+                            );
+                            btn.setAttribute(
+                                "data-municipality-region",
+                                region,
+                            );
+
+                            const nameDiv = document.createElement("div");
+                            nameDiv.className =
+                                "font-semibold text-primary-green";
                             nameDiv.textContent = name;
-                            
-                            const regionDiv = document.createElement('div');
-                            regionDiv.className = 'text-xs text-primary-green/60 mt-1';
+
+                            const regionDiv = document.createElement("div");
+                            regionDiv.className =
+                                "text-xs text-primary-green/60 mt-1";
                             regionDiv.textContent = region;
-                            
+
                             btn.appendChild(nameDiv);
                             btn.appendChild(regionDiv);
-                            
+
                             btn.addEventListener("click", () => {
                                 const municipalityName = btn.getAttribute(
                                     "data-municipality-name",
                                 );
-                                const lat = btn.getAttribute("data-municipality-lat");
-                                const lon = btn.getAttribute("data-municipality-lon");
-                                const region = btn.getAttribute("data-municipality-region");
+                                const lat = btn.getAttribute(
+                                    "data-municipality-lat",
+                                );
+                                const lon = btn.getAttribute(
+                                    "data-municipality-lon",
+                                );
+                                const region = btn.getAttribute(
+                                    "data-municipality-region",
+                                );
 
                                 if (municipalityName && lat && lon) {
                                     selectedMunicipality = {
-                                        id: 'osm-' + municipalityName.toLowerCase().replace(/\s+/g, '-'),
+                                        id:
+                                            "osm-" +
+                                            municipalityName
+                                                .toLowerCase()
+                                                .replace(/\s+/g, "-"),
                                         name: municipalityName,
                                         department: region || undefined,
                                     };
@@ -445,10 +522,10 @@ import { MapPin, Globe, ArrowRight, Loader2 } from "lucide-react";
                                     // Store coordinates too
                                     localStorage.setItem(
                                         "user_location",
-                                        JSON.stringify({ 
-                                            lat: parseFloat(lat), 
-                                            lon: parseFloat(lon) 
-                                        })
+                                        JSON.stringify({
+                                            lat: parseFloat(lat),
+                                            lon: parseFloat(lon),
+                                        }),
                                     );
 
                                     manualSearchInput.value = municipalityName;
@@ -456,9 +533,7 @@ import { MapPin, Globe, ArrowRight, Loader2 } from "lucide-react";
 
                                     // Enable continue button
                                     if (continueBtn) {
-                                        continueBtn.removeAttribute(
-                                            "disabled",
-                                        );
+                                        continueBtn.removeAttribute("disabled");
                                         continueBtn.classList.remove(
                                             "opacity-50",
                                             "cursor-not-allowed",
@@ -466,24 +541,27 @@ import { MapPin, Globe, ArrowRight, Loader2 } from "lucide-react";
                                     }
                                 }
                             });
-                            
+
                             searchResults.appendChild(btn);
                         });
                     } else {
-                        searchResults.innerHTML = '';
-                        const noResultsDiv = document.createElement('div');
-                        noResultsDiv.className = 'p-3 text-sm text-primary-green/50';
-                        noResultsDiv.textContent = 'No se encontraron resultados. Intenta con otro nombre.';
+                        searchResults.innerHTML = "";
+                        const noResultsDiv = document.createElement("div");
+                        noResultsDiv.className =
+                            "p-3 text-sm text-primary-green/50";
+                        noResultsDiv.textContent =
+                            "No se encontraron resultados. Intenta con otro nombre.";
                         searchResults.appendChild(noResultsDiv);
                     }
                 } catch (error) {
                     if (import.meta.env.DEV) {
                         console.error("Search error:", error);
                     }
-                    searchResults.innerHTML = '';
-                    const errorDiv = document.createElement('div');
-                    errorDiv.className = 'p-3 text-sm text-red-600';
-                    errorDiv.textContent = 'Error en la búsqueda. Intenta nuevamente.';
+                    searchResults.innerHTML = "";
+                    const errorDiv = document.createElement("div");
+                    errorDiv.className = "p-3 text-sm text-red-600";
+                    errorDiv.textContent =
+                        "Error en la búsqueda. Intenta nuevamente.";
                     searchResults.appendChild(errorDiv);
                 }
             }, 400); // Slightly longer debounce for external API
@@ -507,29 +585,35 @@ import { MapPin, Globe, ArrowRight, Loader2 } from "lucide-react";
                 // Get stored location (set when selecting from dropdown)
                 const locationStr = localStorage.getItem("user_location");
                 let municipalityId = selectedMunicipality.id;
-                
+
                 // If we have coordinates, try to match with Appwrite municipality
                 if (locationStr) {
                     try {
                         const coords = JSON.parse(locationStr);
-                        const municipality = await findMunicipalityByCoordinates(
-                            coords.lat,
-                            coords.lon
-                        );
-                        
+                        const municipality =
+                            await findMunicipalityByCoordinates(
+                                coords.lat,
+                                coords.lon,
+                            );
+
                         if (municipality) {
                             municipalityId = municipality.$id;
                             if (import.meta.env.DEV) {
-                                console.log("✅ Matched OSM location with Appwrite municipality:", municipality.label);
+                                console.log(
+                                    "✅ Matched OSM location with Appwrite municipality:",
+                                    municipality.label,
+                                );
                             }
                         }
                     } catch (error) {
                         if (import.meta.env.DEV) {
-                            console.log("Could not match with Appwrite municipality, using OSM data");
+                            console.log(
+                                "Could not match with Appwrite municipality, using OSM data",
+                            );
                         }
                     }
                 }
-                
+
                 const locationData = {
                     municipalityId: municipalityId,
                     municipalityName: selectedMunicipality.name,
@@ -541,7 +625,8 @@ import { MapPin, Globe, ArrowRight, Loader2 } from "lucide-react";
                     "detected_municipality",
                     JSON.stringify(locationData),
                 );
-                window.location.href = import.meta.env.BASE_URL + "/onboarding/3";
+                window.location.href =
+                    import.meta.env.BASE_URL + "/onboarding/3";
             }
         });
     }
