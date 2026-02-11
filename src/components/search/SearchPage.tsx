@@ -407,7 +407,7 @@ const SearchPage: React.FC<SearchPageProps> = ({
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-4">
             <a
-              href="/mapa"
+              href={buildPath("/mapa")}
               className="flex items-center gap-2 text-primary-green/60 hover:text-primary-green transition-colors"
             >
               <ArrowLeft size={20} />
