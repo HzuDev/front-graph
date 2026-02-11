@@ -12,7 +12,9 @@ import { fetchAdministrativeLevels } from "./administrative";
 // Cache for polygons to avoid re-fetching
 let polygonCache: PolygonData[] | null = null;
 let polygonCacheTime: number = 0;
-const POLYGON_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+const POLYGON_CACHE_DURATION = 30 * 60 * 1000; // 30 minutes (aumentado)
+const LOCALSTORAGE_KEY = "polygons_cache_v1";
+const LOCALSTORAGE_TIME_KEY = "polygons_cache_time_v1";
 
 /**
  * Helper function to parse GeoJSON coordinates from various formats
@@ -120,9 +122,11 @@ async function fetchPolygonCoordinates(
           return null;
         }
       }
-    } else {
+    } else if (claim.value_raw) {
       // Try to parse as direct JSON
       coordinates = JSON.parse(claim.value_raw);
+    } else {
+      return null;
     }
 
     // Validate coordinates
@@ -144,10 +148,31 @@ async function fetchPolygonCoordinates(
  * Fetch polygon data for map visualization
  */
 export async function fetchPolygons(): Promise<PolygonData[]> {
-  // Check cache first
+  // Check memory cache first
   const now = Date.now();
   if (polygonCache && now - polygonCacheTime < POLYGON_CACHE_DURATION) {
     return polygonCache;
+  }
+
+  // Check localStorage cache
+  if (typeof window !== "undefined") {
+    try {
+      const cachedData = localStorage.getItem(LOCALSTORAGE_KEY);
+      const cachedTime = localStorage.getItem(LOCALSTORAGE_TIME_KEY);
+
+      if (cachedData && cachedTime) {
+        const cacheAge = now - parseInt(cachedTime);
+        if (cacheAge < POLYGON_CACHE_DURATION) {
+          const parsedData = JSON.parse(cachedData);
+          polygonCache = parsedData;
+          polygonCacheTime = parseInt(cachedTime);
+          console.log("✅ Polígonos cargados desde caché local");
+          return parsedData;
+        }
+      }
+    } catch (e) {
+      console.warn("Error leyendo caché de polígonos:", e);
+    }
   }
 
   try {
@@ -244,9 +269,26 @@ export async function fetchPolygons(): Promise<PolygonData[]> {
       }
     }
 
-    // Cache the results
+    // Cache the results in memory and localStorage
     polygonCache = polygons;
     polygonCacheTime = Date.now();
+
+    // Save to localStorage for persistence
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(polygons));
+        localStorage.setItem(
+          LOCALSTORAGE_TIME_KEY,
+          polygonCacheTime.toString(),
+        );
+        console.log(`✅ ${polygons.length} polígonos almacenados en caché`);
+      } catch (e) {
+        console.warn(
+          "No se pudo guardar en localStorage (espacio insuficiente?):",
+          e,
+        );
+      }
+    }
 
     return polygons;
   } catch (error) {
@@ -263,18 +305,27 @@ export async function findMunicipalityByCoordinates(
   lat: number,
   lon: number,
 ): Promise<Entity | null> {
+  const startTime = performance.now();
+
   try {
     const polygons = await fetchPolygons();
 
-    // Uruguay bounds: approximately lat: -35 to -30, lon: -58 to -53
+    // Bolivia bounds: approximately lat: -23 to -9, lon: -70 to -57
     // Quick validation
-    if (lat < -35 || lat > -30 || lon < -58 || lon > -53) {
-      console.warn("Coordinates outside Uruguay bounds:", { lat, lon });
+    if (lat < -23 || lat > -9 || lon < -70 || lon > -57) {
+      console.warn("Coordenadas fuera de Bolivia:", { lat, lon });
+      // No retornar null, intentar de todos modos
     }
 
+    // Pre-calcular bounds para todos los polígonos (con caché simple)
+    const polygonsWithBounds = polygons.map((p) => ({
+      ...p,
+      bounds: getPolygonBounds(p.coordinates),
+    }));
+
     // Pre-filter polygons by bounding box for faster checks
-    const candidatePolygons = polygons.filter((polygon) => {
-      const bounds = getPolygonBounds(polygon.coordinates);
+    const candidatePolygons = polygonsWithBounds.filter((polygon) => {
+      const bounds = polygon.bounds;
       return (
         lat >= bounds.minLat &&
         lat <= bounds.maxLat &&
@@ -284,12 +335,26 @@ export async function findMunicipalityByCoordinates(
     });
 
     console.log(
-      `Filtered ${polygons.length} polygons to ${candidatePolygons.length} candidates`,
+      `🔍 Filtrados ${polygons.length} → ${candidatePolygons.length} candidatos`,
     );
+
+    // Ordenar candidatos por área (más pequeños primero = más precisos)
+    candidatePolygons.sort((a, b) => {
+      const areaA =
+        (a.bounds.maxLat - a.bounds.minLat) *
+        (a.bounds.maxLon - a.bounds.minLon);
+      const areaB =
+        (b.bounds.maxLat - b.bounds.minLat) *
+        (b.bounds.maxLon - b.bounds.minLon);
+      return areaA - areaB;
+    });
 
     // Check each candidate polygon to see if the point is inside
     for (const polygon of candidatePolygons) {
       if (isPointInPolygon([lon, lat], polygon.coordinates)) {
+        const elapsed = performance.now() - startTime;
+        console.log(`✅ Municipio encontrado en ${elapsed.toFixed(0)}ms`);
+
         // Fetch the full entity details
         const entity = await databases.getDocument<Entity>(
           DATABASE_ID,
@@ -300,6 +365,8 @@ export async function findMunicipalityByCoordinates(
       }
     }
 
+    const elapsed = performance.now() - startTime;
+    console.log(`❌ No se encontró municipio (${elapsed.toFixed(0)}ms)`);
     return null;
   } catch (error) {
     console.error("Error finding municipality:", error);
