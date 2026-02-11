@@ -1,0 +1,73 @@
+---
+import OnboardingStep from "../../components/onboarding/OnboardingStep.astro";
+import { ShieldCheck, Zap, Fingerprint, ArrowRight } from "lucide-react";
+---
+
+<OnboardingStep step={1} totalSteps={4} title="Bienvenido" eyebrow="Bienvenido">
+    <!-- Left Content -->
+    <div slot="left-content">
+        <h1
+            class="text-6xl md:text-8xl font-black text-hunter leading-[0.85] tracking-tighter mb-6"
+        >
+            Tu Voto <br />
+            <span
+                class="text-transparent bg-clip-text bg-linear-to-r from-hunter to-hunter/20"
+                >Local.</span
+            >
+        </h1>
+        <p
+            class="text-hunter/60 text-lg md:text-xl max-w-md font-medium leading-relaxed"
+        >
+            Información clara para elegir a tus representantes en las
+            subnacionales.
+        </p>
+    </div>
+
+    <!-- Left Features -->
+    <div slot="left-features">
+        <div class="flex items-center gap-3 text-hunter/80">
+            <div class="p-2 bg-white/5 rounded-lg border border-white/5">
+                <ShieldCheck size={20} />
+            </div>
+            <span class="text-sm font-semibold">Datos Verificados</span>
+        </div>
+        <div class="flex items-center gap-3 text-hunter/80">
+            <div class="p-2 bg-white/5 rounded-lg border border-white/5">
+                <Zap size={20} />
+            </div>
+            <span class="text-sm font-semibold">Actualización Real-time</span>
+        </div>
+    </div>
+
+    <!-- Background Icon -->
+    <div slot="background-icon" class="animate-float">
+        <Fingerprint size={460} strokeWidth={0.5} color=hunter />
+    </div>
+
+    <!-- Right Content -->
+    <div slot="right-content">
+        <h3
+            class="text-4xl font-extrabold text-primary-green tracking-tight leading-tight mb-5"
+        >
+            Conoce a tus futuros gobernantes
+        </h3>
+        <p class="text-primary-green/70 font-medium">
+            En estas elecciones elegiremos a nuestros próximos Alcaldes,
+            Gobernadores y Concejales. Hemos creado esta herramienta para
+            simplificar tu decisión.
+        </p>
+    </div>
+
+    <!-- Actions -->
+    <div slot="actions" class="space-y-4">
+        <a
+            href="/onboarding/2"
+            class="w-full group bg-primary-green  text-hunter p-5 rounded-2xl font-bold text-lg flex items-center justify-between hover:shadow-2xl hover:shadow-primary-gretext-primary-green/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
+        >
+            <span>Siguiente paso</span>
+            <ArrowRight
+                className="group-hover:translate-x-1 transition-transform"
+            />
+        </a>
+    </div>
+</OnboardingStep>

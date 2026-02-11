@@ -1,0 +1,548 @@
+---
+import OnboardingStep from "../../components/onboarding/OnboardingStep.astro";
+import Button from "../../components/ui/Button.astro"; // Assuming there is no react button, but checking previous file usage
+import { MapPin, Globe, ArrowRight, Loader2 } from "lucide-react";
+---
+
+<OnboardingStep step={2} totalSteps={4} title="Tu Lugar" eyebrow="Tu Lugar">
+    <!-- Left Content -->
+    <div slot="left-content">
+        <h1
+            class="text-6xl md:text-8xl font-black text-hunter leading-[0.85] tracking-tighter mb-6"
+        >
+            Tu <br />
+            <span
+                class="text-transparent bg-clip-text bg-linear-to-r from-hunter to-hunter/20"
+                >Municipio.</span
+            >
+        </h1>
+        <p
+            class="text-hunter/60 text-lg md:text-xl max-w-md font-medium leading-relaxed"
+        >
+            Bolivia tiene cientos de municipios. Encuentra a los candidatos de
+            tu zona.
+        </p>
+    </div>
+
+    <!-- Left Features -->
+    <div slot="left-features">
+        <div class="flex items-center gap-3 text-hunter/80">
+            <div class="p-2 bg-white/5 rounded-lg border border-white/5">
+                <MapPin size={20} />
+            </div>
+            <span class="text-sm font-semibold">Geolocalización</span>
+        </div>
+        <div class="flex items-center gap-3 text-hunter/80">
+            <div class="p-2 bg-white/5 rounded-lg border border-white/5">
+                <Globe size={20} />
+            </div>
+            <span class="text-sm font-semibold">Filtro Automático</span>
+        </div>
+    </div>
+
+    <!-- Background Icon -->
+    <div slot="background-icon" class="animate-float">
+        <MapPin size={460} strokeWidth={0.5} color=hunter />
+    </div>
+
+    <!-- Right Content -->
+    <div slot="right-content">
+        <div id="location-content">
+            <h3
+                class="text-4xl font-extrabold text-primary-green tracking-tight leading-tight"
+            >
+                ¿Dónde votas?
+            </h3>
+            <p class="text-primary-green/70 font-medium mt-4">
+                Si compartes tu ubicación, el sistema te mostrará
+                automáticamente a los candidatos que compiten en tu municipio.
+            </p>
+
+            <div
+                id="location-error"
+                class="hidden mt-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm border border-red-100"
+            >
+                No pudimos obtener tu ubicación. Intenta manualmente.
+            </div>
+
+            <div
+                id="location-success"
+                class="hidden mt-4 p-4 bg-green-50 text-green-800 rounded-lg border border-green-200"
+            >
+                <div class="flex items-center gap-2 mb-2">
+                    <MapPin size={20} className="text-green-600" />
+                    <span class="font-bold text-sm">Ubicación detectada</span>
+                </div>
+                <p id="detected-municipality" class="text-sm font-semibold">
+                    <!-- Municipality name will be inserted here -->
+                </p>
+                <p class="text-xs text-green-600/70 mt-1">
+                    El mapa se ajustará automáticamente a tu zona
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div slot="actions" class="space-y-4">
+        <button
+            id="btn-location"
+            class="w-full group bg-primary-green  text-hunter p-5 rounded-2xl font-bold text-lg flex items-center justify-between hover:shadow-2xl hover:shadow-primary-green/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
+        >
+            <span class="flex items-center gap-2">
+                <MapPin className="w-5 h-5" />
+                <span>Usar mi ubicación</span>
+            </span>
+            <ArrowRight
+                className="group-hover:translate-x-1 transition-transform"
+            />
+        </button>
+
+        <!-- Manual Search Section -->
+        <div class="w-full space-y-3">
+            <div class="relative">
+                <input
+                    id="manual-search-input"
+                    type="text"
+                    placeholder="Buscar municipio o provincia..."
+                    class="w-full bg-white border-2 border-primary-green/10 text-primary-green p-4 rounded-2xl font-semibold text-base placeholder:text-primary-green/40 focus:outline-none focus:border-primary-green/30 transition-colors"
+                />
+
+                <!-- Autocomplete Results Dropdown -->
+                <div
+                    id="search-results"
+                    class="hidden absolute top-full left-0 right-0 mt-2 bg-white border-2 border-primary-green/10 rounded-2xl shadow-xl max-h-64 overflow-y-auto z-10"
+                >
+                    <!-- Results will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <button
+                id="continue-btn"
+                disabled
+                class="w-full bg-primary-green/5  p-5 rounded-2xl font-bold text-lg hover:bg-primary-green/10 text-primary-green transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between"
+            >
+                <span>Continuar</span>
+                <ArrowRight className="w-5 h-5" />
+            </button>
+        </div>
+    </div>
+</OnboardingStep>
+
+<script>
+    import { findMunicipalityByCoordinates } from "../../lib/queries";
+
+    // Helper para actualizar contenido del botón de forma segura
+    function setButtonContent(button: HTMLElement, content: string) {
+        button.innerHTML = '';
+        const span = document.createElement('span');
+        span.className = 'flex items-center justify-center gap-2 w-full';
+        span.innerHTML = content;
+        button.appendChild(span);
+    }
+
+    // Helper para crear SVG de spinner
+    function createSpinner(): SVGElement {
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('class', 'animate-spin h-5 w-5 text-hunter');
+        svg.setAttribute('fill', 'none');
+        svg.setAttribute('viewBox', '0 0 24 24');
+        
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('class', 'opacity-25');
+        circle.setAttribute('cx', '12');
+        circle.setAttribute('cy', '12');
+        circle.setAttribute('r', '10');
+        circle.setAttribute('stroke', 'currentColor');
+        circle.setAttribute('stroke-width', '4');
+        
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('class', 'opacity-75');
+        path.setAttribute('fill', 'currentColor');
+        path.setAttribute('d', 'M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z');
+        
+        svg.appendChild(circle);
+        svg.appendChild(path);
+        return svg;
+    }
+
+    const locationBtn = document.getElementById("btn-location");
+    const errorMsg = document.getElementById("location-error");
+    const successMsg = document.getElementById("location-success");
+    const detectedMunicipality = document.getElementById(
+        "detected-municipality",
+    );
+    const manualSearchInput = document.getElementById(
+        "manual-search-input",
+    ) as HTMLInputElement;
+    const searchResults = document.getElementById("search-results");
+    const continueBtn = document.getElementById("continue-btn");
+
+    let selectedMunicipality: {
+        id: string;
+        name: string;
+        department?: string;
+    } | null = null;
+    let searchTimeout: number;
+
+    // Handle GPS location detection
+    if (locationBtn) {
+        locationBtn.addEventListener("click", async () => {
+            // Check if geolocation is supported
+            if (!navigator.geolocation) {
+                errorMsg?.classList.remove("hidden");
+                if (errorMsg) {
+                    errorMsg.textContent = "Tu navegador no soporta geolocalización. Por favor, búscalo manualmente.";
+                }
+                return;
+            }
+
+            // Loading state
+            const originalContent = locationBtn.cloneNode(true);
+            
+            locationBtn.innerHTML = '';
+            locationBtn.appendChild(createSpinner());
+            const span = document.createElement('span');
+            span.textContent = 'Obteniendo ubicación...';
+            locationBtn.appendChild(span);
+            
+            locationBtn.setAttribute("disabled", "true");
+            errorMsg?.classList.add("hidden");
+            successMsg?.classList.add("hidden");
+
+            navigator.geolocation.getCurrentPosition(
+                async (pos) => {
+                    const coords = {
+                        lat: pos.coords.latitude,
+                        lon: pos.coords.longitude,
+                    };
+
+                    // Update button to show detection in progress
+                    locationBtn.innerHTML = '';
+                    locationBtn.appendChild(createSpinner());
+                    const detectionSpan = document.createElement('span');
+                    detectionSpan.textContent = 'Detectando municipio...';
+                    locationBtn.appendChild(detectionSpan);
+
+                    try {
+                        // Use Appwrite polygon intersection to find municipality
+                        const municipality =
+                            await findMunicipalityByCoordinates(
+                                coords.lat,
+                                coords.lon,
+                            );
+
+                        if (municipality) {
+                            // Get department info from claims if available
+                            let departmentName = "";
+                            // TODO: Fetch department from "es parte de" claim if needed
+
+                            // Store location data
+                            const locationData = {
+                                lat: coords.lat,
+                                lon: coords.lon,
+                                municipalityId: municipality.$id,
+                                municipalityName:
+                                    municipality.label || "Municipio detectado",
+                                departmentName: departmentName,
+                                detectionMethod: "gps",
+                            };
+
+                            localStorage.setItem(
+                                "user_location",
+                                JSON.stringify(coords),
+                            );
+                            localStorage.setItem(
+                                "detected_municipality",
+                                JSON.stringify(locationData),
+                            );
+
+                            // Show success message
+                            if (detectedMunicipality && successMsg) {
+                                detectedMunicipality.textContent =
+                                    municipality.label || "Municipio detectado";
+                                successMsg.classList.remove("hidden");
+                            }
+
+                            // Success button state
+                            locationBtn.innerHTML = '';
+                            const successSpan = document.createElement('span');
+                            successSpan.className = 'flex items-center justify-center gap-2 w-full';
+                            successSpan.textContent = '✅ ¡Ubicación encontrada!';
+                            locationBtn.appendChild(successSpan);
+                            
+                            locationBtn.classList.replace(
+                                "bg-primary-gretext-primary-green",
+                                "bg-green-600",
+                            );
+
+                            setTimeout(() => {
+                                window.location.href = "/onboarding/3";
+                            }, 1500);
+                        } else {
+                            // No municipality found
+                            if (originalContent instanceof Node) {
+                                locationBtn.innerHTML = '';
+                                locationBtn.appendChild(originalContent.cloneNode(true));
+                            }
+                            locationBtn.removeAttribute("disabled");
+                            errorMsg?.classList.remove("hidden");
+                            if (errorMsg) {
+                                errorMsg.textContent =
+                                    "No se pudo detectar tu municipio. Por favor, búscalo manualmente.";
+                            }
+
+                            // Store coordinates anyway
+                            localStorage.setItem(
+                                "user_location",
+                                JSON.stringify(coords),
+                            );
+                        }
+                    } catch (detectionError) {
+                        if (import.meta.env.DEV) {
+                            console.error(
+                                "Error detecting municipality:",
+                                detectionError,
+                            );
+                        }
+                        if (originalContent instanceof Node) {
+                            locationBtn.innerHTML = '';
+                            locationBtn.appendChild(originalContent.cloneNode(true));
+                        }
+                        locationBtn.removeAttribute("disabled");
+                        errorMsg?.classList.remove("hidden");
+                        if (errorMsg) {
+                            errorMsg.textContent =
+                                "Error al detectar municipio. Por favor, búscalo manualmente.";
+                        }
+                    }
+                },
+                (err) => {
+                    if (import.meta.env.DEV) {
+                        console.error(err);
+                    }
+                    if (originalContent instanceof Node) {
+                        locationBtn.innerHTML = '';
+                        locationBtn.appendChild(originalContent.cloneNode(true));
+                    }
+                    locationBtn.removeAttribute("disabled");
+                    errorMsg?.classList.remove("hidden");
+                    if (errorMsg) {
+                        errorMsg.textContent =
+                            "Permiso denegado o error de geolocalización. Intenta elegir manualmente.";
+                    }
+                },
+            );
+        });
+    }
+
+    // Handle manual search with OpenStreetMap Nominatim API
+    if (manualSearchInput && searchResults) {
+        manualSearchInput.addEventListener("input", (e) => {
+            const searchTerm = (e.target as HTMLInputElement).value.trim();
+
+            // Clear previous timeout
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
+
+            // Hide results if search is too short
+            if (searchTerm.length < 2) {
+                searchResults.classList.add("hidden");
+                return;
+            }
+
+            // Debounce search
+            searchTimeout = setTimeout(async () => {
+                try {
+                    // Clear previous results
+                    searchResults.innerHTML = '';
+                    const loadingDiv = document.createElement('div');
+                    loadingDiv.className = 'p-3 text-sm text-primary-green/50';
+                    loadingDiv.textContent = 'Buscando...';
+                    searchResults.appendChild(loadingDiv);
+                    searchResults.classList.remove("hidden");
+
+                    // Use OpenStreetMap Nominatim API
+                    // Search for municipalities and provinces in Bolivia
+                    const nominatimUrl = `https://nominatim.openstreetmap.org/search?` +
+                        `q=${encodeURIComponent(searchTerm)}&` +
+                        `countrycodes=bo&` +
+                        `format=json&` +
+                        `addressdetails=1&` +
+                        `limit=10`;
+
+                    const response = await fetch(nominatimUrl, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'User-Agent': 'EleccionesBolivia/1.0' // Required by Nominatim
+                        }
+                    });
+                    
+                    const data = await response.json();
+
+                    // Filter for municipalities, provinces, and cities
+                    const locations = data.filter((item: any) => {
+                        const type = item.type || '';
+                        const addressType = item.address?.municipality || 
+                                          item.address?.city || 
+                                          item.address?.town || 
+                                          item.address?.village ||
+                                          item.address?.county;
+                        return addressType || 
+                               ['municipality', 'administrative', 'city', 'town', 'village', 'county'].includes(type);
+                    });
+
+                    if (locations.length > 0) {
+                        searchResults.innerHTML = '';
+                        locations.forEach((place: any) => {
+                            const name = place.address?.municipality || 
+                                       place.address?.city || 
+                                       place.address?.town || 
+                                       place.address?.village ||
+                                       place.address?.county ||
+                                       place.name || 
+                                       place.display_name.split(',')[0];
+                            
+                            const region = place.address?.state || 
+                                         place.address?.region || 
+                                         'Bolivia';
+                            
+                            const btn = document.createElement('button');
+                            btn.type = 'button';
+                            btn.className = 'w-full text-left p-3 hover:bg-primary-gretext-primary-green/5 transition-colors border-b border-primary-gretext-primary-green/5 last:border-0';
+                            btn.setAttribute('data-municipality-name', name);
+                            btn.setAttribute('data-municipality-lat', place.lat);
+                            btn.setAttribute('data-municipality-lon', place.lon);
+                            btn.setAttribute('data-municipality-region', region);
+                            
+                            const nameDiv = document.createElement('div');
+                            nameDiv.className = 'font-semibold text-primary-green';
+                            nameDiv.textContent = name;
+                            
+                            const regionDiv = document.createElement('div');
+                            regionDiv.className = 'text-xs text-primary-green/60 mt-1';
+                            regionDiv.textContent = region;
+                            
+                            btn.appendChild(nameDiv);
+                            btn.appendChild(regionDiv);
+                            
+                            btn.addEventListener("click", () => {
+                                const municipalityName = btn.getAttribute(
+                                    "data-municipality-name",
+                                );
+                                const lat = btn.getAttribute("data-municipality-lat");
+                                const lon = btn.getAttribute("data-municipality-lon");
+                                const region = btn.getAttribute("data-municipality-region");
+
+                                if (municipalityName && lat && lon) {
+                                    selectedMunicipality = {
+                                        id: 'osm-' + municipalityName.toLowerCase().replace(/\s+/g, '-'),
+                                        name: municipalityName,
+                                        department: region || undefined,
+                                    };
+
+                                    // Store coordinates too
+                                    localStorage.setItem(
+                                        "user_location",
+                                        JSON.stringify({ 
+                                            lat: parseFloat(lat), 
+                                            lon: parseFloat(lon) 
+                                        })
+                                    );
+
+                                    manualSearchInput.value = municipalityName;
+                                    searchResults.classList.add("hidden");
+
+                                    // Enable continue button
+                                    if (continueBtn) {
+                                        continueBtn.removeAttribute(
+                                            "disabled",
+                                        );
+                                        continueBtn.classList.remove(
+                                            "opacity-50",
+                                            "cursor-not-allowed",
+                                        );
+                                    }
+                                }
+                            });
+                            
+                            searchResults.appendChild(btn);
+                        });
+                    } else {
+                        searchResults.innerHTML = '';
+                        const noResultsDiv = document.createElement('div');
+                        noResultsDiv.className = 'p-3 text-sm text-primary-green/50';
+                        noResultsDiv.textContent = 'No se encontraron resultados. Intenta con otro nombre.';
+                        searchResults.appendChild(noResultsDiv);
+                    }
+                } catch (error) {
+                    if (import.meta.env.DEV) {
+                        console.error("Search error:", error);
+                    }
+                    searchResults.innerHTML = '';
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'p-3 text-sm text-red-600';
+                    errorDiv.textContent = 'Error en la búsqueda. Intenta nuevamente.';
+                    searchResults.appendChild(errorDiv);
+                }
+            }, 400); // Slightly longer debounce for external API
+        });
+
+        // Hide results when clicking outside
+        document.addEventListener("click", (e) => {
+            if (
+                !manualSearchInput.contains(e.target as Node) &&
+                !searchResults.contains(e.target as Node)
+            ) {
+                searchResults.classList.add("hidden");
+            }
+        });
+    }
+
+    // Handle continue button for manual selection
+    if (continueBtn) {
+        continueBtn.addEventListener("click", async () => {
+            if (selectedMunicipality) {
+                // Get stored location (set when selecting from dropdown)
+                const locationStr = localStorage.getItem("user_location");
+                let municipalityId = selectedMunicipality.id;
+                
+                // If we have coordinates, try to match with Appwrite municipality
+                if (locationStr) {
+                    try {
+                        const coords = JSON.parse(locationStr);
+                        const municipality = await findMunicipalityByCoordinates(
+                            coords.lat,
+                            coords.lon
+                        );
+                        
+                        if (municipality) {
+                            municipalityId = municipality.$id;
+                            if (import.meta.env.DEV) {
+                                console.log("✅ Matched OSM location with Appwrite municipality:", municipality.label);
+                            }
+                        }
+                    } catch (error) {
+                        if (import.meta.env.DEV) {
+                            console.log("Could not match with Appwrite municipality, using OSM data");
+                        }
+                    }
+                }
+                
+                const locationData = {
+                    municipalityId: municipalityId,
+                    municipalityName: selectedMunicipality.name,
+                    departmentName: selectedMunicipality.department || "",
+                    detectionMethod: "manual",
+                };
+
+                localStorage.setItem(
+                    "detected_municipality",
+                    JSON.stringify(locationData),
+                );
+                window.location.href = "/onboarding/3";
+            }
+        });
+    }
+</script>

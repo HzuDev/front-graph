@@ -1,0 +1,70 @@
+# build output
+dist/
+.output/
+.vercel/
+.netlify/
+
+# generated types
+.astro/
+
+# dependencies
+node_modules/
+.pnpm-store/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# environment variables
+.env
+.env.local
+.env.production
+.env.*.local
+*.local
+
+# AI and development tools
+.cursor/
+.agent/
+.ai/
+*.agent.json
+.github/copilot/
+
+# editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# macOS-specific files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows-specific files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux-specific files
+*~
+
+# temporary files
+*.tmp
+*.temp
+.cache/
+.temp/
+
+# testing
+coverage/
+*.lcov
+.nyc_output/
+
+# build artifacts
+*.tsbuildinfo

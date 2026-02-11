@@ -1,0 +1,19 @@
+---
+import Layout from "../layouts/Layout.astro";
+import DashboardWrapper from "../components/dashboard/DashboardWrapper";
+---
+
+<Layout title="Monitor Elecciones Subnacionales">
+	<!-- React Dashboard with improved error handling -->
+	<DashboardWrapper client:only="react" />
+</Layout>
+
+<script>
+	// Redirigir al onboarding si es la primera visita
+	if (typeof window !== 'undefined') {
+		const onboardingCompleted = localStorage.getItem('onboarding_completed');
+		if (!onboardingCompleted) {
+			window.location.href = '/onboarding/1';
+		}
+	}
+</script>

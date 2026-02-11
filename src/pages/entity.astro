@@ -1,0 +1,10 @@
+---
+import Layout from "../layouts/Layout.astro";
+import EntityPage from "../components/entity/EntityPage";
+---
+
+<Layout title="Detalles de Entidad | Monitor Electoral">
+    <main class="min-h-screen bg-[#f8f9fa]">
+        <EntityPage client:only="react" />
+    </main>
+</Layout>
