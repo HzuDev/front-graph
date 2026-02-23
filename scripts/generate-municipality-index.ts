@@ -52,7 +52,7 @@ const PROJECT_ID =
 const DATABASE_ID =
   process.env.PUBLIC_APPWRITE_DATABASE_ID || "69814c38002f0783976d";
 
-const MUNICIPAL_GEOJSON_URL = `https://appwrite.sociest.org/v1/storage/buckets/6982ca130039bc0ee4e2/files/69925c22001112baddeb/view?project=${PROJECT_ID}`;
+const MUNICIPAL_GEOJSON_URL = `${APPWRITE_ENDPOINT}/storage/buckets/6982ca130039bc0ee4e2/files/69925c22001112baddeb/view?project=${PROJECT_ID}`;
 
 const ENTITIES_COLLECTION = "entities";
 
@@ -316,11 +316,18 @@ async function main() {
   console.log("🚀 Generating municipalities-index.json...\n");
 
   // 5a. Fetch GeoJSON
-  console.log("📥 Fetching municipal GeoJSON from Appwrite Storage...");
+  console.log(`📥 Fetching municipal GeoJSON from: ${MUNICIPAL_GEOJSON_URL}`);
+  console.log(`📡 Using Project ID: ${PROJECT_ID}`);
+  
   const geoRes = await fetch(MUNICIPAL_GEOJSON_URL, {
-    headers: { Accept: "application/json" },
+    headers: { 
+      "X-Appwrite-Project": PROJECT_ID 
+    },
   });
-  if (!geoRes.ok) throw new Error(`GeoJSON fetch failed: ${geoRes.status}`);
+  if (!geoRes.ok) {
+    const errorText = await geoRes.text().catch(() => "n/a");
+    throw new Error(`GeoJSON fetch failed: ${geoRes.status} - ${errorText}`);
+  }
   const geoData = await geoRes.json();
   const features: any[] = geoData.features ?? [];
   console.log(`✅ GeoJSON loaded: ${features.length} features\n`);
