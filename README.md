@@ -67,6 +67,24 @@ pnpm preview
 pnpm lint
 ```
 
+### Regenerar índice de municipios
+
+El archivo `public/municipalities-index.json` está pre-generado y commiteado al repositorio. El build usa este archivo cacheado por defecto.
+
+**Para regenerar el índice localmente** (cuando hay cambios en los datos de municipios):
+
+```bash
+# Regenerar el índice de municipios
+pnpm run generate-municipalities
+```
+
+Este comando:
+- Descarga el GeoJSON municipal desde Appwrite
+- Genera el índice con coordenadas y polígonos simplificados
+- Actualiza `public/municipalities-index.json`
+
+**Nota**: El script de build (`prebuild`) usa el archivo cacheado si la descarga falla (ej: error 403 de Cloudflare en GitHub Actions). Esto asegura que el build no falle por problemas de red.
+
 ## 🌐 Despliegue
 
 El proyecto está configurado para desplegarse automáticamente en GitHub Pages mediante GitHub Actions.

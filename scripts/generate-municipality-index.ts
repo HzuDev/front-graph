@@ -315,20 +315,62 @@ export interface MunicipalityEntry {
 async function main() {
   console.log("🚀 Generating municipalities-index.json...\n");
 
+  // Check for force regeneration flag
+  const FORCE_REGENERATE = process.env.FORCE_REGENERATE === 'true';
+
+  const existingIndexExists = existsSync(OUTPUT_PATH);
+  let existingIndexValid = false;
+  let existingData: any[] = [];
+  
+  if (existingIndexExists) {
+    try {
+      existingData = JSON.parse(readFileSync(OUTPUT_PATH, "utf-8"));
+      if (Array.isArray(existingData) && existingData.length > 0) {
+        existingIndexValid = true;
+        console.log(`📂 Found existing valid index with ${existingData.length} entries`);
+      }
+    } catch (e) {
+      console.log(`📂 Existing index found but invalid`);
+    }
+  }
+
+  // If valid index exists and regeneration not forced, use it
+  if (!FORCE_REGENERATE && existingIndexValid) {
+    console.log(`✅ Using existing valid index (${existingData.length} entries)`);
+    console.log(`   To force regeneration, set FORCE_REGENERATE=true`);
+    console.log(`   Example: FORCE_REGENERATE=true npx tsx scripts/generate-municipality-index.ts\n`);
+    process.exit(0);
+  }
+
+  if (FORCE_REGENERATE) {
+    console.log(`🔄 Force regeneration enabled, downloading fresh data...\n`);
+  }
+  
   // 5a. Fetch GeoJSON
   console.log(`📥 Fetching municipal GeoJSON from: ${MUNICIPAL_GEOJSON_URL}`);
   console.log(`📡 Using Project ID: ${PROJECT_ID}`);
   
-  const geoRes = await fetch(MUNICIPAL_GEOJSON_URL, {
-    headers: { 
-      "X-Appwrite-Project": PROJECT_ID 
-    },
-  });
-  if (!geoRes.ok) {
-    const errorText = await geoRes.text().catch(() => "n/a");
-    throw new Error(`GeoJSON fetch failed: ${geoRes.status} - ${errorText}`);
+  let geoData: any;
+  try {
+    const geoRes = await fetch(MUNICIPAL_GEOJSON_URL, {
+      headers: { 
+        "X-Appwrite-Project": PROJECT_ID 
+      },
+    });
+    if (!geoRes.ok) {
+      const errorText = await geoRes.text().catch(() => "n/a");
+      throw new Error(`GeoJSON fetch failed: ${geoRes.status} - ${errorText}`);
+    }
+    geoData = await geoRes.json();
+  } catch (fetchError) {
+    if (existingIndexValid) {
+      console.log(`⚠️ GeoJSON fetch failed, but valid cached index exists. Keeping cached version.`);
+      console.log(`   Error was: ${fetchError instanceof Error ? fetchError.message : fetchError}`);
+      process.exit(0);
+    }
+    throw fetchError;
   }
-  const geoData = await geoRes.json();
+  
   const features: any[] = geoData.features ?? [];
   console.log(`✅ GeoJSON loaded: ${features.length} features\n`);
 

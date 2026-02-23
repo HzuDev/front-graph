@@ -11,11 +11,12 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "prebuild": "npx tsx scripts/generate-municipality-index.ts",
+    "prebuild": "npx tsx scripts/generate-municipality-index.ts || echo '⚠️  Using cached municipalities-index.json'",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "lint": "astro check"
+    "lint": "astro check",
+    "generate-municipalities": "FORCE_REGENERATE=true npx tsx scripts/generate-municipality-index.ts"
   },
   "dependencies": {
     "@astrojs/node": "^9.5.2",
