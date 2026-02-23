@@ -156,6 +156,11 @@ body {
   border: none !important;
 }
 
+.leaflet-container {
+  width: 100% !important;
+  height: 100% !important;
+}
+
 .user-location-tooltip {
   background-color: rgba(239, 68, 68, 0.95) !important;
   border: 2px solid white !important;

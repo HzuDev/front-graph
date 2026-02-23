@@ -8,13 +8,13 @@ const ResultEntityCard = memo(({ entity, isSelected, onSelect }: {
     isSelected: boolean;
     onSelect: () => void;
 }) => (
-    <div
+    <button
+        type="button"
         onClick={onSelect}
-        className={`bg-white border p-4 rounded-2xl cursor-pointer transition-all hover:shadow-lg ${
-            isSelected
-                ? 'border-primary-green shadow-md'
-                : 'border-primary-green/5 hover:border-primary-green/20'
-        }`}
+        className={`bg-white border p-4 rounded-2xl cursor-pointer transition-all hover:shadow-lg ${isSelected
+            ? 'border-primary-green shadow-md'
+            : 'border-primary-green/5 hover:border-primary-green/20'
+            }`}
     >
         <h4 className="font-bold text-sm mb-1 leading-tight">
             {entity.label || 'Sin nombre'}
@@ -33,7 +33,7 @@ const ResultEntityCard = memo(({ entity, isSelected, onSelect }: {
             Ver más
             <ChevronRight size={12} />
         </a>
-    </div>
+    </button>
 ));
 ResultEntityCard.displayName = 'ResultEntityCard';
 

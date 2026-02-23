@@ -1,7 +1,5 @@
-import React, { lazy, Suspense } from 'react';
+import React from 'react';
 
-// Lazy load the new optimized Leaflet-based MapView
-const MapViewLeaflet = lazy(() => import('../MapViewLeaflet'));
 
 export const MapViewLoader = () => (
     <div className="absolute inset-0 flex items-center justify-center bg-gray-50 rounded-[2.5rem]">
@@ -12,7 +10,6 @@ export const MapViewLoader = () => (
     </div>
 );
 
-// Error fallback (shown via ErrorBoundary if needed)
 export const MapErrorFallback = () => (
     <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded-[2.5rem]">
         <div className="text-center p-8">
@@ -22,7 +19,6 @@ export const MapErrorFallback = () => (
     </div>
 );
 
-// Simple error boundary
 class MapErrorBoundary extends React.Component<
     { children: React.ReactNode },
     { hasError: boolean }

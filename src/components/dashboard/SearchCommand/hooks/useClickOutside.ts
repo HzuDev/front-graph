@@ -21,7 +21,7 @@ import { useEffect, useRef } from 'react';
  *   </div>
  * );
  */
-export const useClickOutside = (ref: React.RefObject<HTMLDivElement>, callback: () => void) => {
+export const useClickOutside = (ref: React.RefObject<HTMLDivElement | null>, callback: () => void) => {
     useEffect(() => {
         // Click outside to close
         function handleClickOutside(event: MouseEvent) {

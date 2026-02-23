@@ -5,7 +5,6 @@ const EntityTypeButton = memo(({ type, isSelected, onSelect }: {
     isSelected: boolean;
     onSelect: () => void;
 }) => {
-    // Dynamically import the icon component
     let IconComponent;
     try {
         const iconMap = {
@@ -23,11 +22,10 @@ const EntityTypeButton = memo(({ type, isSelected, onSelect }: {
     return (
         <button
             onClick={onSelect}
-            className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition-all ${
-                isSelected
-                    ? 'bg-hunter border-2 border-primary-green text-primary-green'
-                    : 'bg-neutral-white border-2 border-transparent text-primary-green/60 hover:border-primary-green/10 hover:bg-white'
-            }`}
+            className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition-all ${isSelected
+                ? 'bg-primary-green/50 border-2 border-primary-green text-primary-green'
+                : 'bg-primary-green border-2 border-transparent text-hunter hover:border-primary-green/30 hover:bg-primary-green hover:text-white'
+                }`}
         >
             <div className="flex items-center gap-3">
                 {IconComponent && <IconComponent size={18} />}

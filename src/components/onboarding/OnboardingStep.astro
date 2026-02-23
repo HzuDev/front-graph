@@ -1,11 +1,12 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import { ArrowRight, Globe } from "lucide-react";
+import Sponsors from "../ui/Sponsors.astro";
 
 interface Props {
   step: number;
   totalSteps: number;
-  title: string; 
+  title: string;
   eyebrow?: string;
 }
 
@@ -16,7 +17,6 @@ const {
   eyebrow = `Onboarding 0${step}`,
 } = Astro.props;
 
-// Progress dots logic
 const dots = Array.from({ length: totalSteps }, (_, i) => i + 1);
 ---
 
@@ -24,7 +24,6 @@ const dots = Array.from({ length: totalSteps }, (_, i) => i + 1);
   <main
     class="min-h-screen bg-[#0d1611] flex items-center justify-center p-4 md:p-8 font-sans antialiased overflow-hidden"
   >
-    <!-- Background Effects -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
       <div
         class="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-primary-green rounded-full blur-[120px] opacity-50"
@@ -36,11 +35,9 @@ const dots = Array.from({ length: totalSteps }, (_, i) => i + 1);
       </div>
     </div>
 
-    <!-- Main Card -->
     <div
       class="relative w-full max-w-6xl min-h-[85vh] grid grid-cols-1 lg:grid-cols-12 bg-[#1a2c21]/40 backdrop-blur-2xl rounded-[2.5rem] border border-white/10 shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-500"
     >
-      <!-- Left Panel -->
       <div
         class="lg:col-span-7 relative p-8 md:p-16 flex flex-col justify-between overflow-hidden border-b lg:border-b-0 lg:border-r border-white/5"
       >
@@ -65,7 +62,6 @@ const dots = Array.from({ length: totalSteps }, (_, i) => i + 1);
           </div>
         </div>
 
-        <!-- Main Content -->
         <div class="relative z-10 my-12">
           <span
             class="text-hunter/30 uppercase tracking-[0.5em] text-xs font-bold mb-4 block"
@@ -74,24 +70,23 @@ const dots = Array.from({ length: totalSteps }, (_, i) => i + 1);
           <slot name="left-content" />
         </div>
 
-        <!-- Features / Bottom Left -->
         <div class="grid grid-cols-2 gap-6 z-10">
           <slot name="left-features" />
         </div>
 
-        <!-- Background Graphic -->
         <div
           class="absolute -right-20 top-1/2 -translate-y-1/2 opacity-10 pointer-events-none z-0"
         >
           <slot name="background-icon" />
         </div>
+        <div class="mt-2">
+          <Sponsors />
+        </div>
       </div>
 
-      <!-- Right Panel -->
       <div
         class="lg:col-span-5 bg-hunter p-8 md:p-16 flex flex-col justify-center relative transition-colors duration-500"
       >
-        <!-- Progress Indicator -->
         <div
           class="absolute top-12 left-8 right-8 flex justify-between items-center"
         >
@@ -115,7 +110,6 @@ const dots = Array.from({ length: totalSteps }, (_, i) => i + 1);
           >
         </div>
 
-        <!-- Interactive Content -->
         <div class="space-y-8">
           <div class="space-y-4">
             <slot name="right-content" />
@@ -132,7 +126,6 @@ const dots = Array.from({ length: totalSteps }, (_, i) => i + 1);
           </p>
         </div>
 
-        <!-- Footer -->
         <div class="absolute bottom-8 left-0 right-0 text-center">
           <span
             class="text-[9px] font-black text-primary-grebg-primary-green/20 uppercase tracking-[0.6em]"
@@ -150,7 +143,6 @@ const dots = Array.from({ length: totalSteps }, (_, i) => i + 1);
     margin: 0;
   }
 
-  /* Typography Helpers */
   :global(h1),
   :global(h2),
   :global(h3) {

@@ -1,0 +1,259 @@
+---
+import Layout from "../layouts/Layout.astro";
+import {
+    Users,
+    Heart,
+    ShieldCheck,
+    Github,
+    Globe,
+    Award,
+    Landmark,
+    ChevronRight,
+    User,
+    Code2,
+    Database,
+    ArrowLeft,
+    Target,
+} from "lucide-react";
+import { buildPath } from "../lib/utils/paths";
+
+const instituciones = [
+    {
+        nombre: "Fundación ARU",
+        rol: "Impulsor Institucional",
+        descripcion:
+            "Institución dedicada a la investigación de calidad para el desarrollo de políticas basadas en evidencia.",
+        logo: buildPath("/logos/aru.png"),
+        link: "https://aru.org.bo",
+    },
+    {
+        nombre: "SOCIEST UMSA",
+        rol: "Soporte Científico",
+        descripcion:
+            "Sociedad Científica de Estadística de la Universidad Mayor de San Andrés, encargada del rigor metodológico del proyecto.",
+        logo: buildPath("/logos/sociest.png"),
+        link: "https://www.sociest.org/",
+    },
+];
+
+const talentos = [
+    {
+        nombre: "Andrés Humberto Chirinos Lizondo",
+        especialidad: "Sistemas & Automatización",
+        nota: "Experto en integraciones de datos.",
+    },
+    {
+        nombre: "Daniel Franklin Cespedes",
+        especialidad: "Análisis de Datos",
+        nota: "Especialista en procesamiento de registros públicos.",
+    },
+    {
+        nombre: "Ricardo R. Cuenca Nava",
+        especialidad: "Desarrollo Web & UI/UX",
+        nota: "Arquitecto de la interfaz Monitor 2026.",
+    },
+];
+---
+
+<Layout title="Colaboradores | Monitor 2026">
+    <main
+        class="min-h-screen bg-neutral-white text-primary-green font-sans antialiased pb-24"
+    >
+        <section
+            class="bg-primary-green pt-32 pb-24 px-6 relative overflow-hidden text-center"
+        >
+            <div
+                class="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"
+            >
+            </div>
+
+            <div
+                class="max-w-4xl mx-auto relative z-10 flex flex-col items-center"
+            >
+                <a
+                    href={buildPath("/")}
+                    class="inline-flex items-center gap-2 text-hunter/40 hover:text-hunter transition-colors mb-12 text-[10px] font-black uppercase tracking-widest group"
+                >
+                    <ArrowLeft
+                        size={14}
+                        className="group-hover:-translate-x-1 transition-transform"
+                    />
+                    Volver al inicio
+                </a>
+
+                <div
+                    class="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 rounded-full border border-white/10 backdrop-blur-md mb-8"
+                >
+                    <Heart size={12} className="text-red-400 fill-current" />
+                    <span
+                        class="text-[10px] font-black uppercase tracking-[0.3em] text-hunter"
+                        >Esfuerzo Colectivo</span
+                    >
+                </div>
+
+                <h1
+                    class="text-6xl md:text-8xl font-black text-hunter tracking-tighter leading-[0.85] mb-8 italic"
+                >
+                    Quienes hacen <br />
+                    <span class="text-hunter/30 not-italic"
+                        >esto posible.</span
+                    >
+                </h1>
+                <p
+                    class="text-xl text-hunter/50 font-medium max-w-xl mx-auto leading-relaxed text-pretty"
+                >
+                    Un proyecto de interés público desarrollado por estudiantes,
+                    profesionales y organizaciones comprometidas con la
+                    transparencia en <span class="text-hunter">Bolivia</span
+                    >.
+                </p>
+            </div>
+        </section>
+
+        <div class="max-w-6xl mx-auto px-6 -mt-12 relative z-20">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {
+                    instituciones.map((inst) => (
+                        <div class="bg-white p-10 lg:p-14 rounded-[4rem] shadow-2xl shadow-primary-green/10 border border-primary-green/5 flex flex-col justify-between group hover:border-primary-green transition-all duration-500">
+                            <div>
+                                <div class="flex justify-between items-start mb-10">
+                                    <div class="w-24 h-24 bg-primary-green/5 rounded-[2rem] p-4 flex items-center justify-center grayscale group-hover:grayscale-0 transition-all duration-700">
+                                        <img
+                                            src={inst.logo}
+                                            alt={inst.nombre}
+                                            class="w-full h-full object-contain"
+                                        />
+                                    </div>
+                                    <span class="text-[9px] font-black bg-hunter text-primary-green px-3 py-1 rounded-lg uppercase tracking-widest border border-primary-green/10">
+                                        {inst.rol}
+                                    </span>
+                                </div>
+                                <h3 class="text-3xl font-black tracking-tight mb-4">
+                                    {inst.nombre}
+                                </h3>
+                                <p class="text-lg text-primary-green/60 leading-relaxed font-medium mb-8 text-pretty">
+                                    {inst.descripcion}
+                                </p>
+                            </div>
+                            <a
+                                href={inst.link}
+                                target="_blank"
+                                class="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-primary-green group-hover:translate-x-1 transition-transform"
+                            >
+                                Visitar Sitio Oficial <ChevronRight size={14} />
+                            </a>
+                        </div>
+                    ))
+                }
+            </div>
+        </div>
+
+        <div class="max-w-6xl mx-auto px-6 mt-24">
+            <div class="flex items-center gap-4 mb-16">
+                <div
+                    class="p-4 bg-primary-green text-hunter rounded-2xl shadow-xl rotate-3"
+                >
+                    <Users size={24} />
+                </div>
+                <div>
+                    <h2 class="text-4xl font-black tracking-tight">
+                        Talento Independiente
+                    </h2>
+                    <p
+                        class="text-[10px] font-bold opacity-30 uppercase tracking-[0.4em]"
+                    >
+                        Colaboradores técnicos y analistas
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {
+                    talentos.map((t) => (
+                        <div class="bg-white border border-primary-green/5 p-8 rounded-[3rem] hover:shadow-2xl hover:shadow-primary-green/5 transition-all group relative overflow-hidden">
+                            <div class="w-12 h-12 bg-primary-green/5 rounded-xl flex items-center justify-center text-primary-green mb-6 group-hover:bg-primary-green group-hover:text-hunter transition-colors">
+                                <User size={20} />
+                            </div>
+                            <h4 class="text-xl font-black leading-tight mb-2">
+                                {t.nombre}
+                            </h4>
+                            <p class="text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-6">
+                                {t.especialidad}
+                            </p>
+                            <p class="text-sm font-medium text-primary-green/40 leading-relaxed italic border-l-2 border-primary-green/10 pl-4">
+                                "{t.nota}"
+                            </p>
+                            <ChevronRight className="absolute bottom-8 right-8 opacity-0 group-hover:opacity-20 transition-opacity" />
+                        </div>
+                    ))
+                }
+
+                <div
+                    class="bg-primary-green/5 border-2 border-dashed border-primary-green/10 p-8 rounded-[3rem] flex flex-col items-center justify-center text-center group hover:bg-hunter hover:border-primary-green transition-all"
+                >
+                    <div
+                        class="w-12 h-12 bg-white rounded-full flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform"
+                    >
+                        <Code2 size={20} className="text-primary-green" />
+                    </div>
+                    <h4 class="text-lg font-black mb-2 tracking-tight">
+                        ¿Quieres sumar?
+                    </h4>
+                    <p
+                        class="text-[10px] font-bold opacity-40 uppercase tracking-widest mb-6"
+                    >
+                        Buscamos analistas y devs
+                    </p>
+                    <a
+                        href="https://github.com/hzu"
+                        target="_blank"
+                        class="px-6 py-3 bg-primary-green text-hunter rounded-xl font-black text-[9px] uppercase tracking-[0.2em] shadow-lg"
+                        >Contribuir en Github</a
+                    >
+                </div>
+            </div>
+        </div>
+
+        <div class="max-w-4xl mx-auto px-6 mt-32">
+            <div
+                class="p-12 bg-hunter rounded-[4rem] text-center border border-primary-green/10 relative overflow-hidden"
+            >
+                <Globe
+                    className="absolute -left-10 -bottom-10 w-48 h-48 opacity-[0.03]"
+                />
+                <Award
+                    className="absolute -right-10 -top-10 w-48 h-48 opacity-[0.03]"
+                />
+
+                <div class="relative z-10">
+                    <h3
+                        class="text-2xl font-black tracking-tight mb-4 text-primary-green"
+                    >
+                        Monitor 2026: Proyecto La Paz
+                    </h3>
+                    <p
+                        class="text-sm font-bold text-primary-green/60 leading-relaxed max-w-lg mx-auto"
+                    >
+                        Iniciado en la Universidad Mayor de San Andrés por
+                        estudiantes de la Sociedad Científica de Estadística
+                        (SOCIEST), este proyecto se expande gracias al apoyo de
+                        la Fundación ARU y la comunidad open-source boliviana.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+</Layout>
+
+<style>
+    main {
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+    }
+    h1,
+    h2,
+    h3,
+    h4 {
+        text-wrap: balance;
+    }
+</style>

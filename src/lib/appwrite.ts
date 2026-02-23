@@ -2,7 +2,6 @@ import { Client, Account, Databases, Storage, Query } from 'appwrite';
 
 const client = new Client();
 
-// Usamos import.meta.env para acceder a las variables de entorno en Astro
 client
     .setEndpoint(import.meta.env.PUBLIC_APPWRITE_ENDPOINT)
     .setProject(import.meta.env.PUBLIC_APPWRITE_PROJECT_ID);
@@ -12,7 +11,6 @@ export const databases = new Databases(client);
 export const storage = new Storage(client);
 export { client };
 
-// Database and Collection IDs
 export const DATABASE_ID = import.meta.env.PUBLIC_APPWRITE_DATABASE_ID;
 
 export const COLLECTIONS = {
@@ -23,8 +21,6 @@ export const COLLECTIONS = {
     AUDIT_LOG: 'audit_log',
 } as const;
 
-// Storage bucket ID for GeoJSON files
 export const GEOJSON_BUCKET_ID = '6982ca130039bc0ee4e2'; // Update if different
 
-// Re-export Query for convenience
 export { Query };

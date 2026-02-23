@@ -3,18 +3,112 @@ import {
   storage,
   DATABASE_ID,
   COLLECTIONS,
-  GEOJSON_BUCKET_ID,
   Query,
 } from "../appwrite";
 import type { Entity, Claim, PolygonData } from "./types";
 import { fetchAdministrativeLevels } from "./administrative";
+import { PROPERTY_IDS } from "./constants";
 
-// Cache for polygons to avoid re-fetching
 let polygonCache: PolygonData[] | null = null;
 let polygonCacheTime: number = 0;
-const POLYGON_CACHE_DURATION = 30 * 60 * 1000; // 30 minutes (aumentado)
-const LOCALSTORAGE_KEY = "polygons_cache_v1";
-const LOCALSTORAGE_TIME_KEY = "polygons_cache_time_v1";
+const POLYGON_CACHE_DURATION = 30 * 60 * 1000;
+const LOCALSTORAGE_KEY = "polygons_cache_v3";
+const LOCALSTORAGE_TIME_KEY = "polygons_cache_time_v3";
+const MUNICIPAL_CACHE_KEY = "municipal_geojson_cache_v2";
+const MUNICIPAL_CACHE_TIME_KEY = "municipal_geojson_cache_time_v2";
+const TERRITORIAL_CODE_MAP_KEY = "territorial_code_map_v2";
+const TERRITORIAL_CODE_TIME_KEY = "territorial_code_time_v2";
+
+const MUNICIPAL_GEOJSON_URL =
+  "https://appwrite.sociest.org/v1/storage/buckets/6982ca130039bc0ee4e2/files/69925c22001112baddeb/view?project=697ea96f003c3264105c";
+
+const DEPARTMENT_NAME_BY_CODE: Record<string, string> = {
+  "01": "Chuquisaca",
+  "02": "La Paz",
+  "03": "Cochabamba",
+  "04": "Oruro",
+  "05": "Potosí",
+  "06": "Tarija",
+  "07": "Santa Cruz",
+  "08": "Beni",
+  "09": "Pando",
+};
+
+type MunicipalFeature = {
+  type: "Feature";
+  properties?: { id?: string; nombre?: string };
+  geometry?: { type: string; coordinates: any };
+};
+
+let territorialCodeMapCache: Map<string, string> | null = null;
+
+async function getTerritorialCodeMap(): Promise<Map<string, string>> {
+  if (territorialCodeMapCache) return territorialCodeMapCache;
+
+  if (typeof window !== "undefined") {
+    const cached = localStorage.getItem(TERRITORIAL_CODE_MAP_KEY);
+    const cachedTime = localStorage.getItem(TERRITORIAL_CODE_TIME_KEY);
+    if (cached && cachedTime) {
+      const cacheAge = Date.now() - Number(cachedTime);
+      if (!Number.isNaN(cacheAge) && cacheAge < POLYGON_CACHE_DURATION) {
+        try {
+          const parsed = JSON.parse(cached) as Record<string, string>;
+          territorialCodeMapCache = new Map(Object.entries(parsed));
+          return territorialCodeMapCache;
+        } catch (e) {
+          localStorage.removeItem(TERRITORIAL_CODE_MAP_KEY);
+          localStorage.removeItem(TERRITORIAL_CODE_TIME_KEY);
+        }
+      }
+    }
+  }
+
+  const map = new Map<string, string>();
+  const LIMIT = 500;
+  let offset = 0;
+  let keepFetching = true;
+
+  while (keepFetching) {
+    const response = await databases.listDocuments<Claim>(
+      DATABASE_ID,
+      COLLECTIONS.CLAIMS,
+      [
+        Query.equal("property", PROPERTY_IDS.TERRITORIAL_CODE),
+        Query.limit(LIMIT),
+        Query.offset(offset),
+      ],
+    );
+
+    response.documents.forEach((claim) => {
+      if (!claim.value_raw || !claim.subject) return;
+      const code = claim.value_raw.trim();
+      if (code.length !== 6) return;
+      const entityId =
+        typeof claim.subject === "string" ? claim.subject : claim.subject.$id;
+      if (entityId) map.set(code, entityId);
+    });
+
+    if (response.documents.length < LIMIT) {
+      keepFetching = false;
+    } else {
+      offset += LIMIT;
+    }
+  }
+
+  territorialCodeMapCache = map;
+
+  if (typeof window !== "undefined") {
+    try {
+      const serialized = JSON.stringify(Object.fromEntries(map.entries()));
+      localStorage.setItem(TERRITORIAL_CODE_MAP_KEY, serialized);
+      localStorage.setItem(TERRITORIAL_CODE_TIME_KEY, Date.now().toString());
+    } catch (e) {
+      console.warn("No se pudo guardar mapa de codigo territorial:", e);
+    }
+  }
+
+  return map;
+}
 
 /**
  * Helper function to parse GeoJSON coordinates from various formats
@@ -23,26 +117,48 @@ function parseGeoJsonCoordinates(
   geoJsonData: any,
   claimId: string,
 ): number[][][] | null {
-  // Handle different GeoJSON formats
+  let coordinates: number[][][] | null = null;
+
   if (geoJsonData.type === "Feature" && geoJsonData.geometry) {
-    // Handle Feature with geometry
     if (geoJsonData.geometry.type === "MultiPolygon") {
-      // MultiPolygon: take the first polygon from the array
-      return geoJsonData.geometry.coordinates[0];
+      // Para MultiPolygon, tomamos el primer polígono (puede haber múltiples)
+      coordinates = geoJsonData.geometry.coordinates[0];
     } else if (geoJsonData.geometry.type === "Polygon") {
-      return geoJsonData.geometry.coordinates;
+      coordinates = geoJsonData.geometry.coordinates;
     }
   } else if (geoJsonData.type === "MultiPolygon") {
-    // Direct MultiPolygon: take the first polygon
-    return geoJsonData.coordinates[0];
+    coordinates = geoJsonData.coordinates[0];
   } else if (geoJsonData.type === "Polygon") {
-    return geoJsonData.coordinates;
+    coordinates = geoJsonData.coordinates;
   } else if (Array.isArray(geoJsonData)) {
-    // Direct coordinates array
-    return geoJsonData;
+    coordinates = geoJsonData;
   }
 
-  return null;
+  // Validar que las coordenadas sean válidas
+  if (!coordinates || !Array.isArray(coordinates) || coordinates.length === 0) {
+    console.warn('[parseGeoJsonCoordinates] Coordenadas vacías o inválidas para claim:', claimId);
+    return null;
+  }
+
+  // Validar que el primer ring tenga al menos 3 puntos (mínimo para un polígono)
+  if (!coordinates[0] || !Array.isArray(coordinates[0]) || coordinates[0].length < 3) {
+    console.warn('[parseGeoJsonCoordinates] Ring principal inválido (menos de 3 puntos) para claim:', claimId);
+    return null;
+  }
+
+  // Validar que cada punto tenga coordenadas válidas [lon, lat]
+  const firstRing = coordinates[0];
+  for (let i = 0; i < firstRing.length; i++) {
+    const point = firstRing[i];
+    if (!Array.isArray(point) || point.length < 2 || 
+        typeof point[0] !== 'number' || typeof point[1] !== 'number' ||
+        isNaN(point[0]) || isNaN(point[1])) {
+      console.warn('[parseGeoJsonCoordinates] Punto inválido en índice', i, 'para claim:', claimId);
+      return null;
+    }
+  }
+
+  return coordinates;
 }
 
 /**
@@ -54,13 +170,11 @@ async function fetchPolygonCoordinates(
   try {
     let coordinates;
 
-    // Check if value_raw is a URL (Appwrite Storage link)
     if (
       typeof claim.value_raw === "string" &&
       claim.value_raw.startsWith("http")
     ) {
-      // Extract bucketId and fileId from Appwrite Storage URL
-      // Format: https://appwrite.sociest.org/v1/storage/buckets/{bucketId}/files/{fileId}/view?project=...
+
       const urlMatch = claim.value_raw.match(
         /\/buckets\/([^\/]+)\/files\/([^\/]+)\//,
       );
@@ -69,14 +183,11 @@ async function fetchPolygonCoordinates(
         const [, bucketId, fileId] = urlMatch;
 
         try {
-          // Use Appwrite SDK to get file view URL (handles authentication)
           const fileUrl = storage.getFileView(bucketId, fileId);
 
-          // Fetch the GeoJSON content
           const geoJsonResponse = await fetch(fileUrl);
 
           if (!geoJsonResponse.ok) {
-            // If SDK URL fails, try direct URL with better error handling
             const directResponse = await fetch(claim.value_raw, {
               method: "GET",
               headers: {
@@ -110,7 +221,6 @@ async function fetchPolygonCoordinates(
           }
         }
       } else {
-        // Try direct fetch as fallback
         try {
           const geoJsonResponse = await fetch(claim.value_raw);
           if (!geoJsonResponse.ok) {
@@ -123,13 +233,11 @@ async function fetchPolygonCoordinates(
         }
       }
     } else if (claim.value_raw) {
-      // Try to parse as direct JSON
       coordinates = JSON.parse(claim.value_raw);
     } else {
       return null;
     }
 
-    // Validate coordinates
     if (
       !coordinates ||
       !Array.isArray(coordinates) ||
@@ -148,20 +256,159 @@ async function fetchPolygonCoordinates(
  * Fetch polygon data for map visualization
  */
 export async function fetchPolygons(): Promise<PolygonData[]> {
-  // Check memory cache first
+  console.log('[fetchPolygons] Iniciando carga de polígonos...');
+  
+  // 1. Verificar caché en memoria primero (más rápido)
   const now = Date.now();
   if (polygonCache && now - polygonCacheTime < POLYGON_CACHE_DURATION) {
+    console.log('[fetchPolygons] ✅ Retornando desde caché en memoria (' + polygonCache.length + ' polígonos)');
     return polygonCache;
   }
 
-  // Check localStorage cache
+  // 2. Verificar caché en localStorage
+  if (typeof window !== "undefined") {
+    const cached = localStorage.getItem(MUNICIPAL_CACHE_KEY);
+    const cachedTime = localStorage.getItem(MUNICIPAL_CACHE_TIME_KEY);
+    if (cached && cachedTime) {
+      const cacheAge = Date.now() - Number(cachedTime);
+      if (!Number.isNaN(cacheAge) && cacheAge < POLYGON_CACHE_DURATION) {
+        try {
+          console.log('[fetchPolygons] ✅ Cargando desde localStorage (edad: ' + Math.round(cacheAge / 1000) + 's)');
+          const parsed = JSON.parse(cached);
+          polygonCache = parsed;
+          polygonCacheTime = Number(cachedTime);
+          console.log('[fetchPolygons] ✅ ' + parsed.length + ' polígonos cargados desde localStorage');
+          return parsed;
+        } catch (e) {
+          console.warn('[fetchPolygons] ⚠️ Error parseando caché, limpiando...', e);
+          localStorage.removeItem(MUNICIPAL_CACHE_KEY);
+          localStorage.removeItem(MUNICIPAL_CACHE_TIME_KEY);
+        }
+      } else {
+        console.log('[fetchPolygons] ⏰ Caché expirado (edad: ' + Math.round(cacheAge / 1000) + 's)');
+      }
+    }
+  }
+
+  // 3. Cargar desde MUNICIPAL_GEOJSON_URL (prioridad)
+  console.log('[fetchPolygons] 📡 Descargando GeoJSON municipal desde servidor...');
+  const fetchStartTime = performance.now();
+  
+  try {
+    const response = await fetch(MUNICIPAL_GEOJSON_URL, {
+      method: "GET",
+      headers: { Accept: "application/json" },
+      mode: "cors",
+      credentials: "omit",
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch municipal GeoJSON: " + response.status);
+    }
+
+    const data = await response.json();
+    const fetchDuration = performance.now() - fetchStartTime;
+    console.log('[fetchPolygons] ✅ GeoJSON descargado en ' + Math.round(fetchDuration) + 'ms');
+    
+    const features = (data?.features || []) as MunicipalFeature[];
+    console.log('[fetchPolygons] 📊 Procesando ' + features.length + ' features del GeoJSON...');
+    
+    const codeMap = await getTerritorialCodeMap();
+    console.log('[fetchPolygons] 📋 Mapa de códigos territoriales cargado (' + codeMap.size + ' códigos)');
+    
+    const polygons: PolygonData[] = [];
+    let skippedNoCode = 0;
+    let skippedNoCoords = 0;
+
+    for (const feature of features) {
+      const props = feature.properties || {};
+      const ineCode = props.id ? String(props.id) : "";
+      const name = props.nombre || "";
+      
+      if (!ineCode || !name) {
+        skippedNoCode++;
+        continue;
+      }
+
+      if (!feature.geometry) {
+        skippedNoCode++;
+        continue;
+      }
+
+      const entityId = codeMap.get(ineCode);
+
+      const coordinates = parseGeoJsonCoordinates(
+        { type: "Feature", geometry: feature.geometry },
+        ineCode,
+      );
+
+      if (!coordinates) {
+        skippedNoCoords++;
+        continue;
+      }
+
+      if (!coordinates[0] || !Array.isArray(coordinates[0]) || coordinates[0].length < 3) {
+        skippedNoCoords++;
+        continue;
+      }
+
+      const departmentCode = ineCode.slice(0, 2);
+      const departamentName = DEPARTMENT_NAME_BY_CODE[departmentCode];
+
+      polygons.push({
+        entityId: entityId || `municipality_${ineCode}`,
+        entityLabel: name,
+        coordinates,
+        administrativeLevel: 3,
+        departamentName,
+        ineCode,
+        hasEntity: !!entityId,
+      });
+    }
+
+    const withEntity = polygons.filter(p => p.hasEntity).length;
+    const withoutEntity = polygons.filter(p => !p.hasEntity).length;
+    
+    console.log('[fetchPolygons] ✅ ' + polygons.length + ' polígonos procesados correctamente');
+    console.log('[fetchPolygons] 📊 Con entityId: ' + withEntity + ' | Sin entityId: ' + withoutEntity);
+    if (skippedNoCode > 0) console.log('[fetchPolygons] ⚠️ ' + skippedNoCode + ' features sin código/nombre/geometría');
+    if (skippedNoCoords > 0) console.log('[fetchPolygons] ⚠️ ' + skippedNoCoords + ' features con coordenadas inválidas');
+
+    polygonCache = polygons;
+    polygonCacheTime = Date.now();
+
+    if (typeof window !== "undefined") {
+      try {
+        const cacheStartTime = performance.now();
+        localStorage.setItem(MUNICIPAL_CACHE_KEY, JSON.stringify(polygons));
+        localStorage.setItem(MUNICIPAL_CACHE_TIME_KEY, polygonCacheTime.toString());
+        const cacheDuration = performance.now() - cacheStartTime;
+        console.log('[fetchPolygons] 💾 Caché guardado en localStorage (' + Math.round(cacheDuration) + 'ms)');
+      } catch (e) {
+        console.warn('[fetchPolygons] ⚠️ No se pudo guardar en localStorage:', e);
+      }
+    }
+
+    const totalDuration = performance.now() - fetchStartTime;
+    console.log('[fetchPolygons] 🎉 Carga completa en ' + Math.round(totalDuration) + 'ms');
+    return polygons;
+  } catch (error) {
+    console.error('[fetchPolygons] ❌ Error cargando GeoJSON municipal:', error);
+    console.log('[fetchPolygons] 🔄 Intentando fallback a método legacy...');
+  }
+
+  const fallbackNow = Date.now();
+  if (polygonCache && fallbackNow - polygonCacheTime < POLYGON_CACHE_DURATION) {
+    return polygonCache;
+  }
+
   if (typeof window !== "undefined") {
     try {
       const cachedData = localStorage.getItem(LOCALSTORAGE_KEY);
       const cachedTime = localStorage.getItem(LOCALSTORAGE_TIME_KEY);
 
       if (cachedData && cachedTime) {
-        const cacheAge = now - parseInt(cachedTime);
+        const cacheAge = fallbackNow - parseInt(cachedTime);
         if (cacheAge < POLYGON_CACHE_DURATION) {
           const parsedData = JSON.parse(cachedData);
           polygonCache = parsedData;
@@ -176,30 +423,45 @@ export async function fetchPolygons(): Promise<PolygonData[]> {
   }
 
   try {
-    // Fetch all claims with datatype 'polygon'
-    const response = await databases.listDocuments<Claim>(
-      DATABASE_ID,
-      COLLECTIONS.CLAIMS,
-      [
-        Query.equal("datatype", "polygon"),
-        Query.limit(500), // Increased limit to capture all municipalities
-      ],
-    );
+    const LIMIT = 500;
+    let offset = 0;
+    let keepFetching = true;
+    const allExampleClaims: Claim[] = [];
 
-    // Fetch administrative levels lookup map
+    while (keepFetching) {
+      console.log(`📡 Fetching polygons offset ${offset}...`);
+      const response = await databases.listDocuments<Claim>(
+        DATABASE_ID,
+        COLLECTIONS.CLAIMS,
+        [
+          Query.equal("datatype", "polygon"),
+          Query.limit(LIMIT),
+          Query.offset(offset),
+        ],
+      );
+
+      allExampleClaims.push(...response.documents);
+      
+      if (response.documents.length < LIMIT) {
+        keepFetching = false;
+      } else {
+        offset += LIMIT;
+      }
+    }
+    
+
     const adminLevels = await fetchAdministrativeLevels();
 
-    const polygons: PolygonData[] = [];
+  const polygons: PolygonData[] = [];
     let processed = 0;
 
-    for (const claim of response.documents) {
+    for (const claim of allExampleClaims) {
       processed++;
 
       if (claim.value_raw && claim.subject) {
         try {
           const coordinates = await fetchPolygonCoordinates(claim);
 
-          // Validate coordinates
           if (!coordinates) {
             continue;
           }
@@ -210,8 +472,7 @@ export async function fetchPolygons(): Promise<PolygonData[]> {
               : claim.subject.$id;
           const administrativeLevel = adminLevels.get(entityId) || 0;
 
-          // Ensure coordinates are properly structured and serializable
-          // Deep clone to avoid any reference issues
+      
           const cleanCoordinates = JSON.parse(JSON.stringify(coordinates));
 
           polygons.push({
@@ -224,24 +485,29 @@ export async function fetchPolygons(): Promise<PolygonData[]> {
             administrativeLevel,
           });
         } catch (parseError: any) {
-          // Skip polygons that fail to parse
         }
       }
     }
 
-    // If we have polygons without labels, fetch entity labels
+    const stats = { level0: 0, level1: 0, level2: 0, level3: 0, total: polygons.length };
+    polygons.forEach(p => {
+        if (p.administrativeLevel === 1) stats.level1++;
+        else if (p.administrativeLevel === 2) stats.level2++;
+        else if (p.administrativeLevel === 3) stats.level3++;
+        else stats.level0++;
+    });
+    console.log("📊 Distribución de Niveles Administrativos:", stats);
+
     const polygonsNeedingLabels = polygons.filter(
       (p) => !p.entityLabel || p.entityLabel === "",
     );
     if (polygonsNeedingLabels.length > 0) {
       try {
-        // Fetch entities in batches to get their labels
         const entityIds = [
           ...new Set(polygonsNeedingLabels.map((p) => p.entityId)),
         ];
         const entityLabels = new Map<string, string>();
 
-        // Fetch in batches of 25
         for (let i = 0; i < entityIds.length; i += 25) {
           const batch = entityIds.slice(i, i + 25);
           const entitiesResponse = await databases.listDocuments<Entity>(
@@ -255,7 +521,6 @@ export async function fetchPolygons(): Promise<PolygonData[]> {
           }
         }
 
-        // Update polygons with fetched labels
         for (const polygon of polygons) {
           if (!polygon.entityLabel || polygon.entityLabel === "") {
             const label = entityLabels.get(polygon.entityId);
@@ -269,11 +534,9 @@ export async function fetchPolygons(): Promise<PolygonData[]> {
       }
     }
 
-    // Cache the results in memory and localStorage
     polygonCache = polygons;
     polygonCacheTime = Date.now();
 
-    // Save to localStorage for persistence
     if (typeof window !== "undefined") {
       try {
         localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(polygons));
@@ -310,36 +573,36 @@ export async function findMunicipalityByCoordinates(
   try {
     const polygons = await fetchPolygons();
 
-    // Bolivia bounds: approximately lat: -23 to -9, lon: -70 to -57
-    // Quick validation
     if (lat < -23 || lat > -9 || lon < -70 || lon > -57) {
       console.warn("Coordenadas fuera de Bolivia:", { lat, lon });
-      // No retornar null, intentar de todos modos
     }
 
-    // Pre-calcular bounds para todos los polígonos (con caché simple)
     const polygonsWithBounds = polygons.map((p) => ({
       ...p,
       bounds: getPolygonBounds(p.coordinates),
     }));
 
-    // Pre-filter polygons by bounding box for faster checks
+
     const candidatePolygons = polygonsWithBounds.filter((polygon) => {
       const bounds = polygon.bounds;
-      return (
+      const inBounds = 
         lat >= bounds.minLat &&
         lat <= bounds.maxLat &&
         lon >= bounds.minLon &&
-        lon <= bounds.maxLon
-      );
+        lon <= bounds.maxLon;
+      
+      if (!inBounds) return false;
+
+
+      return polygon.administrativeLevel === 3;
     });
 
-    console.log(
-      `🔍 Filtrados ${polygons.length} → ${candidatePolygons.length} candidatos`,
-    );
 
-    // Ordenar candidatos por área (más pequeños primero = más precisos)
     candidatePolygons.sort((a, b) => {
+      if (a.administrativeLevel !== b.administrativeLevel) {
+        return b.administrativeLevel - a.administrativeLevel; // 3 va primero
+      }
+
       const areaA =
         (a.bounds.maxLat - a.bounds.minLat) *
         (a.bounds.maxLon - a.bounds.minLon);
@@ -349,13 +612,13 @@ export async function findMunicipalityByCoordinates(
       return areaA - areaB;
     });
 
-    // Check each candidate polygon to see if the point is inside
     for (const polygon of candidatePolygons) {
       if (isPointInPolygon([lon, lat], polygon.coordinates)) {
+   
+        
         const elapsed = performance.now() - startTime;
-        console.log(`✅ Municipio encontrado en ${elapsed.toFixed(0)}ms`);
+        console.log(`✅ Territorio encontrado: ${polygon.entityLabel} (Nivel ${polygon.administrativeLevel}) en ${elapsed.toFixed(0)}ms`);
 
-        // Fetch the full entity details
         const entity = await databases.getDocument<Entity>(
           DATABASE_ID,
           COLLECTIONS.ENTITIES,
@@ -407,7 +670,6 @@ function getPolygonBounds(coordinates: number[][][]): {
 function isPointInPolygon(point: number[], polygon: number[][][]): boolean {
   const [x, y] = point;
 
-  // Check the outer ring (first ring in the polygon)
   const ring = polygon[0];
   let inside = false;
 

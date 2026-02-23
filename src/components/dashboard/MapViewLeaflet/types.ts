@@ -1,5 +1,5 @@
 export interface MapViewProps {
-    onMunicipalitySelect?: (municipality: { name: string; department: string; entityId: string }) => void;
+    onMunicipalitySelect?: (municipality: { name: string; department: string; entityId: string; hasEntity?: boolean }) => void;
     selectedEntityId?: string | null;
 }
 
@@ -10,6 +10,8 @@ export interface MunicipalityFeature {
         name: string;
         department: string;
         level: number;
+        ineCode?: string;
+        hasEntity?: boolean;
     };
     geometry: {
         type: 'Polygon';

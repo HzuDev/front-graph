@@ -1,8 +1,10 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import MapPage from '../components/dashboard/MapPage';
+import Layout from "../layouts/Layout.astro";
+import MapPage from "../components/dashboard/MapPage";
 ---
 
 <Layout title="Mapa Electoral - Monitor Elecciones 2026">
-    <MapPage client:only="react" />
+    <div class="min-h-screen">
+        <MapPage client:only="react" />
+    </div>
 </Layout>

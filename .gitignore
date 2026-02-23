@@ -30,7 +30,9 @@ lerna-debug.log*
 .agent/
 .agents/
 .ai/
+.kiro/
 *.agent.json
+skills-lock.json
 .github/copilot/
 
 # editor directories and files

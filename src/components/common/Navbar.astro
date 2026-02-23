@@ -1,0 +1,79 @@
+---
+import { Globe } from "lucide-react";
+import { buildPath } from "../../lib/utils/paths";
+
+const { pathname } = Astro.url;
+
+// Helper to determine if a link is active
+const isActive = (path: string) => {
+    const normalize = (p: string) => p.replace(/\/+$/, "") || "/";
+    const current = normalize(pathname);
+    const target = normalize(path);
+
+    if (target === normalize(buildPath("/"))) {
+        return current === target;
+    }
+    return current.startsWith(target);
+};
+
+const navLinks = [
+    { name: "Explorador", href: buildPath("/") },
+    { name: "Mapa Global", href: buildPath("/mapa") },
+    { name: "Encuestas", href: buildPath("/encuestas") },
+];
+---
+
+<nav class="fixed top-0 w-full z-50 px-6 py-4">
+    <div
+        class="max-w-7xl mx-auto bg-neutral-white/80 backdrop-blur-xl border border-primary-green/5 rounded-2xl px-6 py-3 flex justify-between items-center shadow-sm"
+    >
+        <div class="flex items-center gap-3">
+            <div
+                class="w-10 h-10 bg-primary-green rounded-xl flex items-center justify-center text-hunter rotate-3 shadow-lg"
+            >
+                <Globe size={20} strokeWidth={2.5} />
+            </div>
+            <div>
+                <h1
+                    class="font-black text-lg leading-none tracking-tighter text-primary-green"
+                >
+                    MONITOR
+                </h1>
+                <p
+                    class="text-[9px] uppercase tracking-[0.3em] font-bold opacity-40 text-primary-green"
+                >
+                    Elecciones 2026
+                </p>
+            </div>
+        </div>
+        <div class="hidden md:flex gap-8 items-center relative h-full">
+            {
+                navLinks.map((link) => {
+                    const active = isActive(link.href);
+                    return (
+                        <div class="relative py-2 group">
+                            <a
+                                href={link.href}
+                                class={`text-xs font-black uppercase tracking-widest transition-all duration-300 ${active ? "text-primary-green opacity-100" : "text-primary-green opacity-30 hover:opacity-100"}`}
+                            >
+                                {link.name}
+                            </a>
+                            {active && (
+                                <div
+                                    transition:name="navbar-underline"
+                                    class="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary-green rounded-full"
+                                />
+                            )}
+                        </div>
+                    );
+                })
+            }
+        </div>
+        <a
+            href={buildPath("/contributors")}
+            class="bg-primary-green text-hunter px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider hover:scale-105 transition-all active:scale-95 shadow-xl shadow-primary-green/10 cursor-pointer"
+        >
+            Colaboradores
+        </a>
+    </div>
+</nav>

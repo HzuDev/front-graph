@@ -2,10 +2,10 @@
 import Layout from "../layouts/Layout.astro";
 import SearchPage from "../components/search/SearchPage";
 
-// En modo static, no podemos leer query params del servidor
-// El componente React los leerá del lado del cliente
 ---
 
 <Layout title="Búsqueda de Entidades">
-    <SearchPage client:only="react" />
+    <div class="min-h-screen bg-neutral-white">
+        <SearchPage client:only="react" />
+    </div>
 </Layout>

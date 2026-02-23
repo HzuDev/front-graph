@@ -4,7 +4,6 @@ import { Rocket, Map, ArrowRight } from "lucide-react";
 ---
 
 <OnboardingStep step={4} totalSteps={4} title="Inicio" eyebrow="Inicio">
-    <!-- Left Content -->
     <div slot="left-content">
         <h1
             class="text-6xl md:text-8xl font-black text-hunter leading-[0.85] tracking-tighter mb-6"
@@ -22,7 +21,6 @@ import { Rocket, Map, ArrowRight } from "lucide-react";
         </p>
     </div>
 
-    <!-- Left Features -->
     <div slot="left-features">
         <div class="flex items-center gap-3 text-hunter/80">
             <div class="p-2 bg-white/5 rounded-lg border border-white/5">
@@ -38,12 +36,10 @@ import { Rocket, Map, ArrowRight } from "lucide-react";
         </div>
     </div>
 
-    <!-- Background Icon -->
     <div slot="background-icon" class="animate-float">
-        <Rocket size={460} strokeWidth={0.5} color=hunter />
+        <Rocket size={460} strokeWidth={0.5} color="hunter" />
     </div>
 
-    <!-- Right Content -->
     <div slot="right-content">
         <h3
             class="text-4xl font-extrabold text-primary-green tracking-tight leading-tight mb-5"
@@ -57,7 +53,6 @@ import { Rocket, Map, ArrowRight } from "lucide-react";
         </p>
     </div>
 
-    <!-- Actions -->
     <div slot="actions" class="space-y-4">
         <button
             id="finish-onboarding-btn"

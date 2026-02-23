@@ -7,7 +7,6 @@ export const useMapData = (selectedDepartment: string, selectedType: string, deb
     const [loading, setLoading] = useState(true);
     const [mapZoomTarget, setMapZoomTarget] = useState<string | null>(null);
 
-    // Load entities and handle department zoom in single effect (evita waterfalls)
     useEffect(() => {
         async function loadData() {
             try {
@@ -22,7 +21,6 @@ export const useMapData = (selectedDepartment: string, selectedType: string, deb
 
                 setEntities(entitiesData.documents);
 
-                // Auto-zoom logic en el mismo efecto
                 if (selectedDepartment !== 'Todos') {
                     const deptId = DEPARTMENT_IDS[selectedDepartment as keyof typeof DEPARTMENT_IDS];
                     if (deptId) {

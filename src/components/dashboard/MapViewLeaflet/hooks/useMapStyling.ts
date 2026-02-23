@@ -1,34 +1,31 @@
 import { useCallback } from 'react';
-import { LEVEL_COLORS } from '../constants';
 import type { MunicipalityFeature } from '../types';
 
 export const useMapStyling = (selectedFeatureId: string | null, userDetectedFeatureId: string | null, hoveredFeatureId: string | null) => {
-    // OPTIMIZED: Reduced from 3 dependencies to 2 by combining hover/selection logic
     const getFeatureStyle = useCallback((feature: MunicipalityFeature) => {
         const isUserLocation = feature.properties.id === userDetectedFeatureId;
         const isSelected = feature.properties.id === selectedFeatureId;
         const isHovered = feature.properties.id === hoveredFeatureId;
-        const level = feature.properties.level;
-        const baseColor = LEVEL_COLORS[level as keyof typeof LEVEL_COLORS] || LEVEL_COLORS[3];
 
-        // User location gets special red styling
+        const baseColor = '#10b981';
+
         if (isUserLocation) {
             return {
-                fillColor: '#ef4444',
-                fillOpacity: 0.35,
-                color: '#dc2626',
-                weight: 3,
-                opacity: 1,
+                fillColor: '#10b981',
+                fillOpacity: 0.1,
+                color: '#34d399',
+                weight: 2,
+                opacity: 0.8,
                 dashArray: '5, 5',
             };
         }
 
         return {
-            fillColor: isSelected ? '#3b82f6' : baseColor,
-            fillOpacity: isSelected ? 0.4 : isHovered ? 0.35 : 0.25,
-            color: isSelected ? '#f97316' : isHovered ? '#fb923c' : baseColor,
-            weight: isSelected ? 3 : isHovered ? 2.5 : 2,
-            opacity: 1,
+            fillColor: isSelected ? '#34d399' : baseColor,
+            fillOpacity: isSelected ? 0.5 : isHovered ? 0.3 : 0.05,
+            color: isSelected ? '#10b981' : isHovered ? '#34d399' : '#047857',
+            weight: isSelected ? 3 : isHovered ? 2 : 1,
+            opacity: isSelected ? 1 : 0.6,
         };
     }, [selectedFeatureId, userDetectedFeatureId, hoveredFeatureId]);
 

@@ -4,18 +4,7 @@ import DashboardWrapper from "../components/dashboard/DashboardWrapper";
 ---
 
 <Layout title="Monitor Elecciones Subnacionales">
-    <!-- React Dashboard with improved error handling -->
-    <DashboardWrapper client:only="react" />
+    <div class="min-h-screen bg-neutral-white">
+        <DashboardWrapper client:only="react" />
+    </div>
 </Layout>
-
-<script>
-    // Redirigir al onboarding si es la primera visita
-    if (typeof window !== "undefined") {
-        const onboardingCompleted = localStorage.getItem(
-            "onboarding_completed",
-        );
-        if (!onboardingCompleted) {
-            window.location.href = import.meta.env.BASE_URL + "/onboarding/1";
-        }
-    }
-</script>

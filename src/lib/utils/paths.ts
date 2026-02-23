@@ -15,20 +15,8 @@
  */
 export function buildPath(path: string): string {
   const base = import.meta.env.BASE_URL || '/';
-  // Eliminar trailing slash del base si existe
   const cleanBase = base.endsWith('/') && base.length > 1 ? base.slice(0, -1) : base;
-  // Asegurar que path empiece con /
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
   
   return `${cleanBase}${cleanPath}`;
-}
-
-/**
- * Construye una URL completa con el site configurado
- * @param path - Ruta relativa
- * @returns URL completa
- */
-export function buildFullUrl(path: string): string {
-  const site = import.meta.env.SITE || '';
-  return `${site}${buildPath(path)}`;
 }

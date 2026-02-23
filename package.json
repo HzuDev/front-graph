@@ -2,11 +2,20 @@
   "name": "graph-astro-elecciones",
   "type": "module",
   "version": "0.0.1",
+  "description": "Aplicación web para visualizar y explorar datos de elecciones en Bolivia, desarrollada con Astro, React y TypeScript",
+  "author": "hzudev",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hzudev/front-graph.git"
+  },
   "scripts": {
     "dev": "astro dev",
+    "prebuild": "npx tsx scripts/generate-municipality-index.ts",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "lint": "astro check"
   },
   "dependencies": {
     "@astrojs/node": "^9.5.2",
@@ -25,13 +34,17 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-leaflet": "^5.0.0",
+    "swr": "^2.4.0",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.18"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.6",
     "@types/leaflet": "^1.9.21",
     "prettier-plugin-astro": "^0.14.1",
+    "react-doctor": "^0.0.20",
     "shadcn": "^3.8.4",
-    "tw-animate-css": "^1.4.0"
+    "tw-animate-css": "^1.4.0",
+    "typescript": "^5.9.3"
   }
 }

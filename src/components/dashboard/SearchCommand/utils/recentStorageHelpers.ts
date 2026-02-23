@@ -1,5 +1,5 @@
 import { RECENT_STORAGE_KEY, MAX_RECENT_ITEMS } from '../constants';
-import type { Entity } from '../../../lib/queries';
+import type { Entity } from '../../../../lib/queries';
 
 /**
  * Loads recently searched/viewed entities from browser localStorage

@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import { fetchEntities, type Entity } from "../../../../lib/queries";
+import { fetchQuickSearchEntities, type Entity } from "../../../../lib/queries";
 import { SEARCH_DEBOUNCE_MS } from "../constants";
 
 /**
@@ -61,10 +61,9 @@ export const useSearch = () => {
       setLoading(true);
       setIsOpen(true);
 
-      // Debounce search to reduce API calls
       searchTimeout.current = setTimeout(async () => {
         try {
-          const response = await fetchEntities({ search: value, limit: 5 });
+          const response = await fetchQuickSearchEntities({ search: value, limit: 5 });
           setResults(response.documents);
           if (onSearch) onSearch(value);
         } catch (error) {
@@ -86,7 +85,6 @@ export const useSearch = () => {
     if (onSearch) onSearch("");
   }, []);
 
-  console.log("useSearch: current query state:", query);
 
   return {
     query,

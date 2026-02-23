@@ -1,6 +1,5 @@
-import React, { memo, useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { loadRecentEntities } from '../utils/recentStorageHelpers';
-import { MAX_RECENT_ITEMS } from '../constants';
 
 const ResultsDropdownHeader = memo(() => {
     const recentEntities = useMemo(() => loadRecentEntities(), []);

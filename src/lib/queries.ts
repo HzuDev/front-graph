@@ -1,12 +1,13 @@
-// Re-export all types
-export type { Entity, Claim, PolygonData } from './queries/types';
+// Re-export commonly used types
+export type { Entity, Authority, Claim } from './queries/types';
 
-// Re-export all constants
-export { PROPERTY_IDS, DEPARTMENT_IDS, CACHE_DURATION } from './queries/constants';
+// Re-export selected constants (without low-level IDs that are internal)
+export { DEPARTMENT_IDS } from './queries/constants';
 
 // Re-export search functions
 export { 
     fetchEntities,
+    fetchQuickSearchEntities,
     fetchEntitiesFiltered,
     getEntitiesByType,
     getEntitiesByDepartment
@@ -34,3 +35,9 @@ export {
     searchMunicipalities
 } from './queries/administrative';
 
+// Re-export authority functions
+export {
+    getAuthoritiesByMunicipality,
+    getAuthoritiesByMunicipalityStreaming,
+    fetchAuthorities
+} from './queries/authorities';
