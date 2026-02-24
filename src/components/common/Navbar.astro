@@ -99,114 +99,112 @@ const navLinks = [
                 </div>
             </button>
         </div>
-
-        <div
-            id="mobile-menu"
-            class="fixed inset-0 top-0 left-0 w-full h-screen bg-[#fcfcfc] z-40 flex flex-col pt-24 px-6 transition-all duration-500 transform translate-x-full opacity-0 pointer-events-none lg:hidden"
-        >
-            <div class="flex flex-col gap-6">
-                <span
-                    class="text-[10px] uppercase tracking-[0.5em] font-black text-primary-green/30 px-2"
-                    >Navegación</span
-                >
-                <div class="flex flex-col gap-2">
-                    {
-                        navLinks.map((link) => {
-                            const active = isActive(link.href);
-                            return (
-                                <a
-                                    href={link.href}
-                                    class={`text-3xl font-black tracking-tighter py-4 px-2 rounded-2xl transition-all ${active ? "text-primary-green bg-primary-green/5" : "text-primary-green/40 hover:text-primary-green hover:bg-primary-green/5"}`}
-                                >
-                                    {link.name}
-                                </a>
-                            );
-                        })
-                    }
-                </div>
-
-                <div class="h-px bg-primary-green/5 my-4"></div>
-
-                <a
-                    href={buildPath("/contributors")}
-                    class="w-full bg-primary-green text-hunter p-6 rounded-2xl text-lg font-black uppercase tracking-[0.2em] flex justify-between items-center shadow-2xl shadow-primary-green/20"
-                >
-                    <span>Colaboradores</span>
-                    <Globe size={24} />
-                </a>
-            </div>
-
-            <div class="mt-auto pb-12 text-center">
-                <p
-                    class="text-[10px] uppercase tracking-[0.3em] font-bold opacity-30 text-primary-green"
-                >
-                    Monitor Electoral 2026
-                </p>
-                <div class="flex justify-center gap-4 mt-4">
-                    <span class="w-1.5 h-1.5 rounded-full bg-primary-green/20"
-                    ></span>
-                    <span class="w-1.5 h-1.5 rounded-full bg-primary-green/20"
-                    ></span>
-                    <span class="w-1.5 h-1.5 rounded-full bg-primary-green/20"
-                    ></span>
-                </div>
-            </div>
-        </div>
     </div>
 </nav>
+<!-- Modo movil -->
+<div
+    id="mobile-menu"
+    class="fixed inset-0 top-0 left-0 w-full h-screen bg-neutral-white z-[9999] flex flex-col pt-24 px-6 transition-all duration-500 transform translate-x-full opacity-0 pointer-events-none lg:hidden"
+>
+    <div class="flex flex-col h-full">
+        <div class="flex justify-between items-center mb-12">
+            <span
+                class="text-[10px] uppercase tracking-[0.5em] font-black text-primary-green/30 px-2"
+                >Navegación</span
+            >
+            <button
+                id="mobile-menu-close-btn"
+                class="w-12 h-12 flex items-center justify-center rounded-2xl bg-primary-green text-hunter shadow-xl active:scale-90 transition-transform"
+            >
+                <X size={28} strokeWidth={3} />
+            </button>
+        </div>
+
+        <div class="flex flex-col gap-2">
+            {
+                navLinks.map((link) => {
+                    const active = isActive(link.href);
+                    return (
+                        <a
+                            href={link.href}
+                            class={`text-4xl font-black tracking-tighter py-5 px-4 rounded-2xl transition-all ${active ? "text-primary-green bg-primary-green/5" : "text-primary-green/40 hover:text-primary-green hover:bg-primary-green/5"}`}
+                        >
+                            {link.name}
+                        </a>
+                    );
+                })
+            }
+        </div>
+
+        <div class="h-px bg-primary-green/5 my-8"></div>
+
+        <a
+            href={buildPath("/contributors")}
+            class="w-full bg-primary-green text-hunter p-8 rounded-[2rem] text-xl font-black uppercase tracking-[0.2em] flex justify-between items-center shadow-2xl shadow-primary-green/20 hover:scale-[1.02] transition-transform"
+        >
+            <span>Colaboradores</span>
+            <Globe size={28} />
+        </a>
+    </div>
+
+    <div class="mt-auto pb-12 text-center">
+        <p
+            class="text-[10px] uppercase tracking-[0.3em] font-bold opacity-30 text-primary-green"
+        >
+            Monitor Electoral 2026
+        </p>
+        <div class="flex justify-center gap-4 mt-4">
+            <span class="w-1.5 h-1.5 rounded-full bg-primary-green/20"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-primary-green/20"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-primary-green/20"></span>
+        </div>
+    </div>
+</div>
 
 <script>
     function setupMenu() {
         const btn = document.getElementById("mobile-menu-btn");
+        const closeBtn = document.getElementById("mobile-menu-close-btn");
         const menu = document.getElementById("mobile-menu");
         const iconOpen = document.getElementById("menu-icon-open");
         const iconClose = document.getElementById("menu-icon-close");
 
-        if (!btn || !menu || !iconOpen || !iconClose) return;
+        if (!btn || !menu || !iconOpen || !iconClose || !closeBtn) return;
 
-        let isOpen = false;
+        function toggleMenu(forceClose = false) {
+            const shouldOpen = forceClose
+                ? false
+                : !menu!.classList.contains("translate-x-0");
 
-        btn.addEventListener("click", () => {
-            isOpen = !isOpen;
-
-            if (isOpen) {
-                menu.classList.remove(
+            if (shouldOpen) {
+                menu!.classList.remove(
                     "translate-x-full",
                     "opacity-0",
                     "pointer-events-none",
                 );
-                menu.classList.add("translate-x-0", "opacity-100");
-                iconOpen.classList.add("scale-0", "rotate-90");
-                iconClose.classList.add("scale-100", "rotate-0");
-                iconClose.classList.remove("scale-0", "rotate-90");
+                menu!.classList.add("translate-x-0", "opacity-100");
+                iconOpen!.classList.add("scale-0", "rotate-90");
+                iconClose!.classList.add("scale-100", "rotate-0");
                 document.body.style.overflow = "hidden";
             } else {
-                menu.classList.add(
+                menu!.classList.add(
                     "translate-x-full",
                     "opacity-0",
                     "pointer-events-none",
                 );
-                menu.classList.remove("translate-x-0", "opacity-100");
-                iconOpen.classList.remove("scale-0", "rotate-90");
-                iconClose.classList.add("scale-0", "rotate-90");
-                iconClose.classList.remove("scale-100", "rotate-0");
+                menu!.classList.remove("translate-x-0", "opacity-100");
+                iconOpen!.classList.remove("scale-0", "rotate-90");
+                iconClose!.classList.remove("scale-100", "rotate-0");
                 document.body.style.overflow = "";
             }
-        });
+        }
+
+        btn.addEventListener("click", () => toggleMenu());
+        closeBtn.addEventListener("click", () => toggleMenu(true));
 
         const links = menu.querySelectorAll("a");
         links.forEach((link) => {
-            link.addEventListener("click", () => {
-                isOpen = false;
-                menu.classList.add(
-                    "translate-x-full",
-                    "opacity-0",
-                    "pointer-events-none",
-                );
-                iconOpen.classList.remove("scale-0", "rotate-90");
-                iconClose.classList.add("scale-0", "rotate-90");
-                document.body.style.overflow = "";
-            });
+            link.addEventListener("click", () => toggleMenu(true));
         });
     }
 
