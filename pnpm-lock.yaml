@@ -38,6 +38,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      graph-astro-elecciones:
+        specifier: 'link:'
+        version: 'link:'
       leaflet:
         specifier: ^1.9.4
         version: 1.9.4

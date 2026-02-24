@@ -17,6 +17,7 @@ import {
 import type { Entity, Claim } from "../../../lib/queries/types";
 import { databases, COLLECTIONS, DATABASE_ID, Query } from "../../../lib/appwrite";
 import { buildPath } from "../../../lib/utils/paths";
+import { PaginationControls } from "../../ui/PaginationControls";
 
 const PROPERTY_IDS = {
     ES_INSTANCIA_DE: "es_instancia_de",
@@ -49,16 +50,35 @@ interface Province {
     nombre: string;
 }
 
+type TerritoryState = {
+    provinces: Province[];
+    candidates: Candidate[];
+    loadingRelated: boolean;
+};
+
+type TerritoryAction =
+    | { type: 'SET_LOADING'; payload: boolean }
+    | { type: 'SET_PROVINCES'; payload: Province[] }
+    | { type: 'SET_CANDIDATES'; payload: Candidate[] };
+
+const territoryReducer = (state: TerritoryState, action: TerritoryAction): TerritoryState => {
+    switch (action.type) {
+        case 'SET_LOADING': return { ...state, loadingRelated: action.payload };
+        case 'SET_PROVINCES': return { ...state, provinces: action.payload };
+        case 'SET_CANDIDATES': return { ...state, candidates: action.payload };
+        default: return state;
+    }
+};
+
 export function TerritoryView({ entity, claims = EMPTY_CLAIMS }: TerritoryProps) {
-    const [territoryState, setTerritoryState] = useState<{
-        provinces: Province[];
-        candidates: Candidate[];
-        loadingRelated: boolean;
-    }>({
+    const [territoryState, dispatch] = useReducer(territoryReducer, {
         provinces: [],
         candidates: [],
         loadingRelated: true
     });
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const ITEMS_PER_PAGE = 10;
 
     const { provinces, candidates, loadingRelated } = territoryState;
 
@@ -116,7 +136,7 @@ export function TerritoryView({ entity, claims = EMPTY_CLAIMS }: TerritoryProps)
         const fetchIncomingData = async () => {
             if (!entity.$id) return;
 
-            setTerritoryState(prev => ({ ...prev, loadingRelated: true }));
+            dispatch({ type: 'SET_LOADING', payload: true });
 
             try {
                 const incomingClaims = await databases.listDocuments(
@@ -167,7 +187,7 @@ export function TerritoryView({ entity, claims = EMPTY_CLAIMS }: TerritoryProps)
                     return x ? acc : acc.concat([current]);
                 }, [] as Province[]);
 
-                setTerritoryState(prev => ({ ...prev, provinces: uniqueProvinces }));
+                dispatch({ type: 'SET_PROVINCES', payload: uniqueProvinces });
 
                 const newCandidates: Candidate[] = [];
                 await getAuthoritiesByMunicipalityStreaming(entity.$id, (batch, replace) => {
@@ -184,13 +204,13 @@ export function TerritoryView({ entity, claims = EMPTY_CLAIMS }: TerritoryProps)
                     });
                     newCandidates.length = 0;
                     updated.forEach(c => newCandidates.push(c));
-                    setTerritoryState(prev => ({ ...prev, candidates: [...newCandidates] }));
+                    dispatch({ type: 'SET_CANDIDATES', payload: [...newCandidates] });
                 });
 
             } catch (err) {
                 console.error("Error fetching incoming data", err);
             } finally {
-                setTerritoryState(prev => ({ ...prev, loadingRelated: false }));
+                dispatch({ type: 'SET_LOADING', payload: false });
             }
         };
         fetchIncomingData();
@@ -334,14 +354,6 @@ export function TerritoryView({ entity, claims = EMPTY_CLAIMS }: TerritoryProps)
                                     Actores en Circunscripción
                                 </h3>
                             </div>
-                            <div className="hidden md:flex gap-2">
-                                <button className="p-2 rounded-lg bg-primary-green/5 text-primary-green hover:bg-hunter transition-colors">
-                                    <ChevronRight size={18} className="transform rotate-180" />
-                                </button>
-                                <button className="p-2 rounded-lg bg-primary-green/5 text-primary-green hover:bg-hunter transition-colors">
-                                    <ChevronRight size={18} />
-                                </button>
-                            </div>
                         </div>
 
                         {loadingRelated ? (
@@ -351,26 +363,35 @@ export function TerritoryView({ entity, claims = EMPTY_CLAIMS }: TerritoryProps)
                                 No se encontraron autoridades registradas o candidatos en este territorio.
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {candidates.slice(0, 10).map((c) => (
-                                    <a key={c.id} href={buildPath(`/entity?id=${c.id}`)} className="group bg-white border border-primary-green/5 p-8 rounded-[3rem] hover:border-primary-green hover:shadow-2xl transition-all relative overflow-hidden block">
-                                        <div className="absolute top-0 right-0 p-6 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <ArrowUpRight size={20} className="text-hunter" />
-                                        </div>
-                                        <span className="bg-primary-green/5 group-hover:bg-hunter group-hover:text-primary-green px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest mb-4 inline-block border border-primary-green/10 transition-colors">
-                                            {c.cargo}
-                                        </span>
-                                        <h4 className="text-2xl font-black leading-tight mb-4 group-hover:text-primary-green transition-colors line-clamp-2">
-                                            {c.nombre}
-                                        </h4>
-                                        <div className="flex items-center gap-3 py-2 px-3 bg-primary-green/5 group-hover:bg-white/10 rounded-xl border border-primary-green/5 group-hover:border-transparent w-fit transition-colors">
-                                            <span className="text-[10px] font-bold text-primary-green/60 group-hover:text-primary-green/70 leading-none">
-                                                {c.partido}
+                            <>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {candidates.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((c) => (
+                                        <a key={c.id} href={buildPath(`/entity?id=${c.id}`)} className="group bg-white border border-primary-green/5 p-8 rounded-[3rem] hover:border-primary-green hover:shadow-2xl transition-all relative overflow-hidden block">
+                                            <div className="absolute top-0 right-0 p-6 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <ArrowUpRight size={20} className="text-hunter" />
+                                            </div>
+                                            <span className="bg-primary-green/5 group-hover:bg-hunter group-hover:text-primary-green px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest mb-4 inline-block border border-primary-green/10 transition-colors">
+                                                {c.cargo}
                                             </span>
-                                        </div>
-                                    </a>
-                                ))}
-                            </div>
+                                            <h4 className="text-2xl font-black leading-tight mb-4 group-hover:text-primary-green transition-colors line-clamp-2">
+                                                {c.nombre}
+                                            </h4>
+                                            <div className="flex items-center gap-3 py-2 px-3 bg-primary-green/5 group-hover:bg-white/10 rounded-xl border border-primary-green/5 group-hover:border-transparent w-fit transition-colors">
+                                                <span className="text-[10px] font-bold text-primary-green/60 group-hover:text-primary-green/70 leading-none">
+                                                    {c.partido}
+                                                </span>
+                                            </div>
+                                        </a>
+                                    ))}
+                                </div>
+                                {candidates.length > ITEMS_PER_PAGE && (
+                                    <PaginationControls
+                                        currentPage={currentPage}
+                                        totalPages={Math.ceil(candidates.length / ITEMS_PER_PAGE)}
+                                        onPageChange={setCurrentPage}
+                                    />
+                                )}
+                            </>
                         )}
                     </section>
                 </div>
@@ -431,7 +452,7 @@ export function TerritoryView({ entity, claims = EMPTY_CLAIMS }: TerritoryProps)
                         </div>
                     )}
                 </aside>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }
