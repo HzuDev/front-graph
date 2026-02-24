@@ -94,11 +94,11 @@ const EntityDashboard: React.FC = () => {
 
                         <div className="flex flex-wrap gap-2 mt-6">
                             {[
-                                "Todos",
                                 "Gobernadores",
                                 "Alcaldes",
                                 "Concejales",
                                 "Asambleístas",
+                                "Todos",
                             ].map((filtro) => (
                                 <button
                                     key={`filter-${filtro}`}
