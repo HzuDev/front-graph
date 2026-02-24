@@ -26,9 +26,11 @@ const ENTITY_TYPE_IDS = {
     CASA_ENCUESTADORA: "casa_encuestadora",
 };
 
-const TerritoryMap = lazy(() => import("./TerritoryMap").then(m => ({ default: m.TerritoryMap })));
+const TerritoryMap = lazy(() => import("./TerritoryMap"));
 
 const EMPTY_CLAIMS: Claim[] = [];
+
+import { getAuthoritiesByMunicipalityStreaming } from "../../../lib/queries/authorities";
 
 interface TerritoryProps {
     entity: Entity;
@@ -48,9 +50,17 @@ interface Province {
 }
 
 export function TerritoryView({ entity, claims = EMPTY_CLAIMS }: TerritoryProps) {
-    const [provinces, setProvinces] = useState<Province[]>([]);
-    const [candidates, setCandidates] = useState<Candidate[]>([]);
-    const [loadingRelated, setLoadingRelated] = useState(true);
+    const [territoryState, setTerritoryState] = useState<{
+        provinces: Province[];
+        candidates: Candidate[];
+        loadingRelated: boolean;
+    }>({
+        provinces: [],
+        candidates: [],
+        loadingRelated: true
+    });
+
+    const { provinces, candidates, loadingRelated } = territoryState;
 
     const nombre = entity.label || "Territorio Desconocido";
     const alias = entity.aliases?.[0] || "";
@@ -93,96 +103,94 @@ export function TerritoryView({ entity, claims = EMPTY_CLAIMS }: TerritoryProps)
     });
     const geoJsonUrl = geoJsonClaim?.value_raw;
 
-    type State = {
-        provinces: Province[];
-        casas: Entity[];
-        loading: boolean;
-    };
-    type Action =
-        | { type: 'SET_PROVINCES'; payload: Province[] }
-        | { type: 'SET_CASAS'; payload: Entity[] }
-        | { type: 'SET_LOADING'; payload: boolean };
-
-    const initialState: State = { provinces: [], casas: [], loading: true };
-    const reducer = (state: State, action: Action): State => {
-        switch (action.type) {
-            case 'SET_PROVINCES':
-                return { ...state, provinces: action.payload };
-            case 'SET_CASAS':
-                return { ...state, casas: action.payload };
-            case 'SET_LOADING':
-                return { ...state, loading: action.payload };
-            default:
-                return state;
-        }
-    };
-    const [state, dispatch] = useReducer(reducer, initialState);
+    console.log('[TerritoryView] Data extraction:', {
+        nombre,
+        codigoTerritorial,
+        geoJsonUrl,
+        entityId: entity.$id,
+        geoJsonClaimFound: !!geoJsonClaim,
+        allClaimsCount: claims.length
+    });
 
     useEffect(() => {
         const fetchIncomingData = async () => {
             if (!entity.$id) return;
+
+            setTerritoryState(prev => ({ ...prev, loadingRelated: true }));
+
             try {
                 const incomingClaims = await databases.listDocuments(
                     DATABASE_ID,
                     COLLECTIONS.CLAIMS,
-                    [Query.equal("value_relation", entity.$id), Query.limit(50)]
+                    [Query.equal("value_relation", entity.$id), Query.limit(100)]
                 );
+
                 const foundProvinces: Province[] = [];
+                const subjectIdsToFetch: string[] = [];
+
                 for (const claim of incomingClaims.documents as unknown as Claim[]) {
                     if (claim.subject && typeof claim.subject === "object") {
-                        if (claim.subject.label?.toLowerCase().includes("provincia") || claim.subject.label?.toLowerCase().includes("municipio")) {
+                        if (claim.subject.label?.toLowerCase().includes("provincia") || claim.subject.label?.toLowerCase().includes("municipio") || claim.property?.label?.toLowerCase() === "parte de") {
                             foundProvinces.push({
                                 id: claim.subject.$id,
-                                nombre: claim.subject.label.replace("Provincia de ", "").replace("Provincia ", "")
+                                nombre: (claim.subject.label || "").replace("Provincia de ", "").replace("Provincia ", "")
                             });
                         }
                     } else if (claim.subject && typeof claim.subject === "string") {
-                        try {
-                            const sub = await databases.getDocument(DATABASE_ID, COLLECTIONS.ENTITIES, claim.subject);
+                        subjectIdsToFetch.push(claim.subject);
+                    }
+                }
+
+                if (subjectIdsToFetch.length > 0) {
+                    const uniqueIds = [...new Set(subjectIdsToFetch)];
+                    const batchSize = 50;
+                    for (let i = 0; i < uniqueIds.length; i += batchSize) {
+                        const batch = uniqueIds.slice(i, i + batchSize);
+                        const cRes = await databases.listDocuments<Entity>(
+                            DATABASE_ID,
+                            COLLECTIONS.ENTITIES,
+                            [Query.equal("$id", batch), Query.limit(batchSize)]
+                        );
+                        for (const sub of cRes.documents) {
                             if (sub.label?.toLowerCase().includes("provincia") || sub.label?.toLowerCase().includes("municipio")) {
                                 foundProvinces.push({
                                     id: sub.$id,
-                                    nombre: sub.label.replace("Provincia de ", "").replace("Provincia ", "")
+                                    nombre: (sub.label || "").replace("Provincia de ", "").replace("Provincia ", "")
                                 });
                             }
-                        } catch (e) { }
+                        }
                     }
                 }
+
                 const uniqueProvinces = foundProvinces.reduce((acc, current) => {
                     const x = acc.find(item => item.id === current.id);
                     return x ? acc : acc.concat([current]);
                 }, [] as Province[]);
-                dispatch({ type: 'SET_PROVINCES', payload: uniqueProvinces });
 
-                // 2. Fetch Casas Encuestadoras
-                const casasClaims = await databases.listDocuments(
-                    DATABASE_ID,
-                    COLLECTIONS.CLAIMS,
-                    [
-                        Query.equal("property", PROPERTY_IDS.ES_INSTANCIA_DE),
-                        Query.equal("value_relation", ENTITY_TYPE_IDS.CASA_ENCUESTADORA),
-                        Query.limit(100)
-                    ]
-                );
-                const casaIds = casasClaims.documents.map(c => typeof c.subject === 'string' ? c.subject : c.subject?.$id).filter(Boolean);
-                let loadedCasas: Entity[] = [];
-                if (casaIds.length > 0) {
-                    const uniqueCasaIds = [...new Set(casaIds)];
-                    for (let i = 0; i < uniqueCasaIds.length; i += 100) {
-                        const batch = uniqueCasaIds.slice(i, i + 100);
-                        const cRes = await databases.listDocuments<Entity>(
-                            DATABASE_ID,
-                            COLLECTIONS.ENTITIES,
-                            [Query.equal("$id", batch), Query.limit(100)]
-                        );
-                        loadedCasas = [...loadedCasas, ...cRes.documents];
-                    }
-                }
-                dispatch({ type: 'SET_CASAS', payload: loadedCasas });
+                setTerritoryState(prev => ({ ...prev, provinces: uniqueProvinces }));
+
+                const newCandidates: Candidate[] = [];
+                await getAuthoritiesByMunicipalityStreaming(entity.$id, (batch, replace) => {
+                    let updated = replace ? [] : [...newCandidates];
+                    batch.forEach(a => {
+                        if (!updated.some(e => e.id === a.$id)) {
+                            updated.push({
+                                id: a.$id,
+                                nombre: a.label || "Sin nombre",
+                                cargo: a.role || "Autoridad",
+                                partido: a.party?.label || "Sin partido",
+                            });
+                        }
+                    });
+                    newCandidates.length = 0;
+                    updated.forEach(c => newCandidates.push(c));
+                    setTerritoryState(prev => ({ ...prev, candidates: [...newCandidates] }));
+                });
+
             } catch (err) {
                 console.error("Error fetching incoming data", err);
             } finally {
-                dispatch({ type: 'SET_LOADING', payload: false });
+                setTerritoryState(prev => ({ ...prev, loadingRelated: false }));
             }
         };
         fetchIncomingData();
@@ -212,7 +220,7 @@ export function TerritoryView({ entity, claims = EMPTY_CLAIMS }: TerritoryProps)
 
                         <div className="lg:col-span-5 relative group">
                             <div className="aspect-square bg-white/5 rounded-[3rem] border border-white/10 backdrop-blur-sm overflow-hidden shadow-2xl relative">
-                                <div className="absolute inset-0 z-0">
+                                <div className="absolute inset-0 z-0 w-full h-full">
                                     <Suspense fallback={
                                         <div className="absolute inset-0 flex items-center justify-center bg-white/5 backdrop-blur-sm rounded-[3rem] border border-white/10 text-hunter/50 font-bold p-8 text-center animate-pulse">
                                             <p>Cargando Mapa...</p>
@@ -227,13 +235,13 @@ export function TerritoryView({ entity, claims = EMPTY_CLAIMS }: TerritoryProps)
                                 </div>
                                 {geoJsonUrl && (
                                     <div className="absolute bottom-8 left-8 right-8 z-10">
-                                        <button
-                                            onClick={() => window.open(geoJsonUrl, '_blank')}
+                                        <a
+                                            href={buildPath("/mapa")}
                                             className="w-full py-4 bg-hunter/20 hover:bg-hunter/90 text-hunter hover:text-primary-green backdrop-blur-md rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl hover:scale-[1.02] transition-all"
                                         >
                                             <Navigation size={16} />
                                             Explorar Mapa Completo
-                                        </button>
+                                        </a>
                                     </div>
                                 )}
                             </div>
@@ -352,11 +360,11 @@ export function TerritoryView({ entity, claims = EMPTY_CLAIMS }: TerritoryProps)
                                         <span className="bg-primary-green/5 group-hover:bg-hunter group-hover:text-primary-green px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest mb-4 inline-block border border-primary-green/10 transition-colors">
                                             {c.cargo}
                                         </span>
-                                        <h4 className="text-2xl font-black leading-tight mb-4 group-hover:text-hunter transition-colors line-clamp-2">
+                                        <h4 className="text-2xl font-black leading-tight mb-4 group-hover:text-primary-green transition-colors line-clamp-2">
                                             {c.nombre}
                                         </h4>
                                         <div className="flex items-center gap-3 py-2 px-3 bg-primary-green/5 group-hover:bg-white/10 rounded-xl border border-primary-green/5 group-hover:border-transparent w-fit transition-colors">
-                                            <span className="text-[10px] font-bold text-primary-green/60 group-hover:text-hunter/70 leading-none">
+                                            <span className="text-[10px] font-bold text-primary-green/60 group-hover:text-primary-green/70 leading-none">
                                                 {c.partido}
                                             </span>
                                         </div>

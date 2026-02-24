@@ -43,6 +43,8 @@ function FitBounds({ data }: { data: any }) {
 }
 
 export default function MapRenderer({ geoData }: MapRendererProps) {
+    console.log('[MapRenderer] Rendering with geoData:', geoData);
+    
     return (
         <MapContainer
             zoom={5.5}
