@@ -147,7 +147,7 @@ const description = "La página que buscas no está habilitada en el sistema.";
 
 <script>
     (function () {
-        const basePath = import.meta.env.BASE_ROUTE ?? "/";
+        const basePath = import.meta.env.PUBLIC_BASE_ROUTE ?? "/";
         const currentPath = window.location.pathname;
         const currentSearch = window.location.search;
         const currentHash = window.location.hash;

@@ -1,6 +1,6 @@
 /**
  * Helper para construir rutas que funcionen tanto en desarrollo como en GitHub Pages
- * Usa import.meta.env.BASE_URL automáticamente configurado por Astro
+ * Usa import.meta.env.PUBLIC_BASE_URL automáticamente configurado por Astro
  */
 
 /**
@@ -14,8 +14,9 @@
  * buildPath('/search?q=test')
  */
 export function buildPath(path: string): string {
-  const base = import.meta.env.BASE_URL ?? "/";
-  const cleanBase = base === "/" ? "" : base.replace(/\/+$/, "");
+  const base = import.meta.env.PUBLIC_BASE_URL ?? "/";
+  const baseRoute = import.meta.env.PUBLIC_BASE_ROUTE ?? "/";
+  const cleanBase = base === "/" ? "" : base.replace(/\/+$/, "") + baseRoute.replace(/\/+$/, "");
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
 
   return `${cleanBase}${cleanPath}`;

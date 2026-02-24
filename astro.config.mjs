@@ -12,8 +12,8 @@ const env = loadEnv("", process.cwd(), "");
 export default defineConfig({
   output: "static",
   // Configuración para GitHub Pages
-  site: env.BASE_URL || "http://localhost:4321",
-  base: env.BASE_ROUTE || "/",
+  site: env.PUBLIC_BASE_URL || "http://localhost:4321",
+  base: env.PUBLIC_BASE_ROUTE || "/",
   server: {
     port: Number(env.PORT) || 4321,
     host: true,
