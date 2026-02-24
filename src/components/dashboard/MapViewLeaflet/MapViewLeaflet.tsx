@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
-import { MapContainer, TileLayer, GeoJSON, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, GeoJSON, Marker, Popup, useMap } from 'react-leaflet';
 import type { LatLngExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { MapPin } from 'lucide-react';
@@ -30,6 +30,19 @@ import { loadUserLocationFromStorage, pointInPolygon, saveMunicipalityToStorage 
 import { LEVEL_NAMES, LEVEL_COLORS } from './constants';
 import MapController from './components/MapController';
 import type { MapViewProps } from './types';
+
+function MapResizer() {
+    const map = useMap();
+    useEffect(() => {
+        const timeouts = [10, 50, 200, 500, 1000].map(ms =>
+            setTimeout(() => {
+                map.invalidateSize();
+            }, ms)
+        );
+        return () => timeouts.forEach(clearTimeout);
+    }, [map]);
+    return null;
+}
 
 const MapViewLeaflet: React.FC<MapViewProps> = ({ onMunicipalitySelect, selectedEntityId }) => {
     const [selectionState, setSelectionState] = useState<{
@@ -101,7 +114,7 @@ const MapViewLeaflet: React.FC<MapViewProps> = ({ onMunicipalitySelect, selected
         if (userLocation) {
             return { center: [userLocation.lat, userLocation.lon], zoom: 10 };
         }
-        return { center: [-16.5, -64.5], zoom: 5.5 }; 
+        return { center: [-16.5, -64.5], zoom: 5.5 };
     }, [userLocation]);
 
     if (loading || !ready) {
@@ -140,6 +153,7 @@ const MapViewLeaflet: React.FC<MapViewProps> = ({ onMunicipalitySelect, selected
                     attribution='&copy; <a href="https://carto.com/">CARTO</a>'
                     url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
                 />
+                <MapResizer />
 
                 {geoJsonData && ready && (
                     <GeoJSON
