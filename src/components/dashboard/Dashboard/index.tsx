@@ -122,7 +122,7 @@ const EntityDashboard: React.FC = () => {
                 </header>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-                    <div className="lg:col-span-8 space-y-8">
+                    <div className="lg:col-span-8 space-y-8 order-2 lg:order-1 min-h-[60rem]">
                         <div className="flex items-center justify-between border-b border-primary-green/5 pb-4">
                             <div className="flex items-center gap-2">
                                 <Users size={18} className="opacity-30" />
@@ -132,7 +132,7 @@ const EntityDashboard: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
                             {showLoading ? (
                                 [1, 2, 3, 4].map((_, index) => (
                                     <div
@@ -154,7 +154,7 @@ const EntityDashboard: React.FC = () => {
                                         />
                                     ))
                                 ) : (
-                                    <div className="col-span-full py-12 text-center opacity-50 font-medium flex flex-col items-center gap-2">
+                                    <div className="col-span-full py-12 text-center opacity-50 font-medium flex flex-col items-center gap-2 absolute top-0 w-full">
                                         <span>No se encontraron resultados para "{selectedFilter}".</span>
                                     </div>
                                 )
@@ -171,7 +171,7 @@ const EntityDashboard: React.FC = () => {
 
                     </div>
 
-                    <div className="lg:col-span-4 space-y-8">
+                    <div className="lg:col-span-4 space-y-8 order-1 lg:order-2">
                         <div className="bg-primary-green p-1 rounded-[2.5rem] shadow-2xl overflow-hidden group sticky top-28">
                             <div className="bg-hunter rounded-[2.3rem] aspect-4/5 relative overflow-hidden">
                                 <div className="absolute inset-0">
