@@ -29,6 +29,7 @@
     "astro": "^5.17.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "graph-astro-elecciones": "link:",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.563.0",
     "radix-ui": "^1.4.3",
