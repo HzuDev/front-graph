@@ -14,9 +14,9 @@
  * buildPath('/search?q=test')
  */
 export function buildPath(path: string): string {
-  const base = import.meta.env.BASE_URL || '/';
-  const cleanBase = base.endsWith('/') && base.length > 1 ? base.slice(0, -1) : base;
+  const base = import.meta.env.BASE_URL ?? "/";
+  const cleanBase = base === "/" ? "" : base.replace(/\/+$/, "");
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
-  
+
   return `${cleanBase}${cleanPath}`;
 }
