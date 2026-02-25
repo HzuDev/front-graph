@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import type { Entity, Claim } from "@/lib/queries/types";
 import { buildPath } from "@/lib/utils/paths";
-
+import { PROPERTY_IDS } from "@/lib/constants/entity-types";
 const EMPTY_CLAIMS: Claim[] = [];
 
 interface PartyProps {
@@ -32,34 +32,29 @@ export function PartyView({ entity, claims = EMPTY_CLAIMS }: PartyProps) {
     const tipo = "Partido Político";
     const bgDescription = entity.description || "Agrupación política con participación a nivel nacional registrada en el OEP.";
 
-    const foundationClaim = claims.find((c) => {
-        const prop = c.property?.label?.toLowerCase() || "";
-        return prop.includes("fundación") || prop.includes("fundacion") || prop.includes("fecha");
-    });
+    function claim_find(prop: string) {
+        return claims.find((c) => {
+            const prop_id = c.property?.["$id"]?.toLowerCase() || "";
+            return prop_id.includes(prop);
+        });
+    }
+
+    const foundationClaim = claim_find(PROPERTY_IDS.FUNDACION);
     const fundacion = foundationClaim?.value_raw || "Desconocida";
 
-    const militantsClaim = claims.find((c) => {
-        const prop = c.property?.label?.toLowerCase() || "";
-        return prop.includes("militante") || prop.includes("afiliado") || prop.includes("miembro");
-    });
+    const militantsClaim = claim_find(PROPERTY_IDS.MILITANTE);
     const militantes = militantsClaim?.value_raw || "No registrado";
 
-    const ideologyClaim = claims.find((c) => {
-        const prop = c.property?.label?.toLowerCase() || "";
-        return prop.includes("ideologia") || prop.includes("ideología") || prop.includes("espectro");
-    });
+    const ideologyClaim = claim_find(PROPERTY_IDS.ESPECTRO);
     const espectro = ideologyClaim?.value_relation?.label || ideologyClaim?.value_raw || "No definido";
 
-    const addressClaim = claims.find((c) => {
-        const prop = c.property?.label?.toLowerCase() || "";
-        return prop.includes("sede") || prop.includes("dirección") || prop.includes("direccion");
-    });
+    const tipo_organizacionClaim = claim_find(PROPERTY_IDS.TIPO_ORGANIZACION);
+    const tipo_organizacion = tipo_organizacionClaim?.value_relation?.label || tipo_organizacionClaim?.value_raw || "No definido";
+
+    const addressClaim = claim_find(PROPERTY_IDS.SED)
     const sede = addressClaim?.value_raw || "Sede principal no registrada";
 
-    const colorClaim = claims.find((c) => {
-        const prop = c.property?.label?.toLowerCase() || "";
-        return prop.includes("color");
-    });
+    const colorClaim = claim_find(PROPERTY_IDS.COLOR);
     const colorRaw = colorClaim?.value_raw;
     let colors = ["#14281d", "#2d4a3e"];
     if (colorRaw) {
@@ -70,21 +65,18 @@ export function PartyView({ entity, claims = EMPTY_CLAIMS }: PartyProps) {
         }
     }
 
-    const leaderClaim = claims.find((c) => {
-        const prop = c.property?.label?.toLowerCase() || "";
-        return prop.includes("presidente") || prop.includes("líder") || prop.includes("lider");
-    });
+    const leaderClaim = claim_find(PROPERTY_IDS.PRESIDENTE);
+    const leaderName = leaderClaim?.value_relation?.label || leaderClaim?.value_raw || "Directiva";
+    const idLeader = typeof leaderClaim?.value_relation === 'object' ? leaderClaim?.value_relation?.$id : leaderClaim?.value_relation;
+    const linkLeader = idLeader ? buildPath(`/entity?id=${idLeader}`) : "#";
 
-    const logoClaim = claims.find((c) => {
-        const prop = c.property?.label?.toLowerCase() || "";
-        return prop.includes("logo") || prop.includes("imagen") || prop.includes("escudo");
-    });
+    const logoClaim = claim_find(PROPERTY_IDS.LOGO);
     const logoUrl = logoClaim?.value_raw;
 
-    const candidateClaim = claims.find((c) => {
-        const prop = c.property?.label?.toLowerCase() || "";
-        return prop.includes("candidato") || prop.includes("presidencial");
-    });
+    const candidateClaim = claim_find(PROPERTY_IDS.CANDIDATO);
+    const candidateName = candidateClaim?.value_relation?.label || candidateClaim?.value_raw || "Directiva";
+    const idCandidate = typeof candidateClaim?.value_relation === 'object' ? candidateClaim?.value_relation?.$id : candidateClaim?.value_relation;
+    const linkCandidate = idCandidate ? buildPath(`/entity?id=${idCandidate}`) : "#";
 
     const presidenteInfo = leaderClaim || candidateClaim;
     const presidenteName = presidenteInfo?.value_relation?.label || presidenteInfo?.value_raw || "Directiva";
@@ -220,9 +212,9 @@ export function PartyView({ entity, claims = EMPTY_CLAIMS }: PartyProps) {
                         <p
                             className="text-[10px] font-black uppercase tracking-widest opacity-30"
                         >
-                            Ideología
+                            Tipo de Organización
                         </p>
-                        <p className="text-xl font-black" style={{ textWrap: "balance" }}>{espectro}</p>
+                        <p className="text-xl font-black" style={{ textWrap: "balance" }}>{tipo_organizacion}</p>
                     </div>
                 </div>
             </div>
