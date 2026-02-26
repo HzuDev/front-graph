@@ -15,11 +15,11 @@ permissions:
 
 # Permite solo un deploy concurrente
 concurrency:
-  group: "pages"
+  group: 'pages'
   cancel-in-progress: false
 
 env:
-  BUILD_PATH: "." # ruta desde la raíz del repo
+  BUILD_PATH: '.' # ruta desde la raíz del repo
 
 jobs:
   build:
@@ -32,7 +32,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: '20'
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
@@ -52,7 +52,7 @@ jobs:
           PUBLIC_APPWRITE_ENDPOINT: ${{ secrets.PUBLIC_APPWRITE_ENDPOINT }}
           PUBLIC_APPWRITE_PROJECT_ID: ${{ secrets.PUBLIC_APPWRITE_PROJECT_ID }}
           PUBLIC_APPWRITE_DATABASE_ID: ${{ secrets.PUBLIC_APPWRITE_DATABASE_ID }}
-          
+
           PUBLIC_BASE_URL: ${{ secrets.PUBLIC_BASE_URL }}
           PUBLIC_BASE_ROUTE: ${{ secrets.PUBLIC_BASE_ROUTE }}
         run: pnpm run build

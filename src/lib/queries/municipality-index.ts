@@ -7,7 +7,7 @@
  *  - findMunicipalityByCoords()   → GPS point-in-polygon (no Appwrite call)
  *  - searchMunicipalities()       → normalized fuzzy search
  */
-
+import { buildPath } from '../utils/paths';
 
 export interface MunicipalityEntry {
   id: string; // Appwrite entity ID
@@ -18,13 +18,11 @@ export interface MunicipalityEntry {
   polygon: number[][]; // simplified exterior ring [[lon, lat], ...]
 }
 
-
-const CACHE_KEY = "municipality_index_v1";
-const CACHE_TIME_KEY = "municipality_index_time_v1";
+const CACHE_KEY = 'municipality_index_v1';
+const CACHE_TIME_KEY = 'municipality_index_time_v1';
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 let memoryCache: MunicipalityEntry[] | null = null;
-
 
 function readFromLocalStorage(): MunicipalityEntry[] | null {
   try {
@@ -43,10 +41,9 @@ function writeToLocalStorage(data: MunicipalityEntry[]): void {
     localStorage.setItem(CACHE_KEY, JSON.stringify(data));
     localStorage.setItem(CACHE_TIME_KEY, String(Date.now()));
   } catch {
+    console.warn('No se pudo guardar el índice de municipios en localStorage');
   }
 }
-
-
 /**
  * Returns the full municipality list.
  * Order of preference: memory → localStorage → network fetch.
@@ -60,14 +57,12 @@ export async function getMunicipalityIndex(): Promise<MunicipalityEntry[]> {
     return stored;
   }
 
-  const base = import.meta.env.PUBLIC_BASE_URL ?? "/";
-  const baseRoute = import.meta.env.PUBLIC_BASE_ROUTE ?? "/";
-  const url = `${base.replace(/\/$/, "")}${baseRoute.replace(/\/$/, "")}/municipalities-index.json`;
+  const url = buildPath('/municipalities-index.json');
 
   const res = await fetch(url);
   if (!res.ok) {
     throw new Error(
-      `Failed to load municipalities-index.json: ${res.status} ${res.statusText}`,
+      `Failed to load municipalities-index.json: ${res.status} ${res.statusText}`
     );
   }
 
@@ -107,7 +102,7 @@ function isPointInPolygon(lat: number, lon: number, ring: number[][]): boolean {
  */
 export async function findMunicipalityByCoords(
   lat: number,
-  lon: number,
+  lon: number
 ): Promise<MunicipalityEntry | null> {
   const index = await getMunicipalityIndex();
 
@@ -116,7 +111,7 @@ export async function findMunicipalityByCoords(
       lat >= m.bbox.minLat &&
       lat <= m.bbox.maxLat &&
       lon >= m.bbox.minLon &&
-      lon <= m.bbox.maxLon,
+      lon <= m.bbox.maxLon
   );
 
   for (const candidate of candidates) {
@@ -135,7 +130,7 @@ export async function findMunicipalityByCoords(
 export function searchMunicipalities(
   index: MunicipalityEntry[],
   query: string,
-  limit = 8,
+  limit = 8
 ): MunicipalityEntry[] {
   const normalized = normalizeStr(query.trim());
   if (!normalized) return index.slice(0, limit);
@@ -154,7 +149,7 @@ export function searchMunicipalities(
 
 export function normalizeStr(str: string): string {
   return str
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase();
 }

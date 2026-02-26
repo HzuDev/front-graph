@@ -1,6 +1,6 @@
-import React from "react";
-import { Fingerprint, ExternalLink } from "lucide-react";
-import { buildPath } from "../../../../lib/utils/paths";
+import React from 'react';
+import { Fingerprint, ExternalLink } from 'lucide-react';
+import { buildPath } from '../../../../lib/utils/paths';
 
 interface PartyCardProps {
   mainParty: {
@@ -45,7 +45,9 @@ export const PartyCard: React.FC<PartyCardProps> = ({ mainParty }) => {
               </div>
             </div>
             <a
-              href={mainParty.id ? buildPath(`/entity?id=${mainParty.id}`) : '#'}
+              href={
+                mainParty.id ? buildPath(`/entity?id=${mainParty.id}`) : '#'
+              }
               className="flex items-center justify-center gap-3 w-full py-5 bg-hunter text-primary-green rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.03] active:scale-95 transition-all shadow-xl shadow-black/20"
             >
               Explorar Partido <ExternalLink size={14} />

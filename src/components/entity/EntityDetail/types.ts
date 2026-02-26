@@ -1,4 +1,4 @@
-import type { Entity, Claim } from "../../../lib/queries";
+import type { Entity, Claim } from '../../../lib/queries';
 
 export interface SocialLink {
   type: 'facebook' | 'twitter' | 'instagram' | 'linkedin' | 'web' | 'other';
