@@ -38,6 +38,30 @@ const isOnboarding = pathname.includes('/onboarding');
     <ClientRouter />
     <title>{title}</title>
 
+    {
+      import.meta.env.PUBLIC_GA_ID && (
+        <>
+          <script
+            is:inline
+            async
+            src={`https://www.googletagmanager.com/gtag/js?id=${import.meta.env.PUBLIC_GA_ID}`}
+          />
+          <script
+            is:inline
+            define:vars={{ gaId: import.meta.env.PUBLIC_GA_ID }}
+          >
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+              window.dataLayer.push(arguments);
+            }
+            gtag('js', new Date());
+
+            gtag('config', gaId);
+          </script>
+        </>
+      )
+    }
+
     <script
       is:inline
       define:vars={{
