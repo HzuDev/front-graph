@@ -1,14 +1,22 @@
-import React from "react";
-import { History, Landmark, Calendar, ExternalLink, ChevronRight } from "lucide-react";
-import { buildPath } from "../../../../lib/utils/paths";
-import type { TimelineItem } from "../types";
-import { formatDate } from "../utils/formatters";
+import React from 'react';
+import {
+  History,
+  Landmark,
+  Calendar,
+  ExternalLink,
+  ChevronRight,
+} from 'lucide-react';
+import { buildPath } from '../../../../lib/utils/paths';
+import type { TimelineItem } from '../types';
+import { formatDate } from '../utils/formatters';
 
 interface TrayectoriaSectionProps {
   trayectoriaItems: TimelineItem[];
 }
 
-export const TrayectoriaSection: React.FC<TrayectoriaSectionProps> = ({ trayectoriaItems }) => {
+export const TrayectoriaSection: React.FC<TrayectoriaSectionProps> = ({
+  trayectoriaItems,
+}) => {
   return (
     <div className="bg-white p-10 rounded-[4rem] shadow-2xl shadow-primary-green/5 border border-primary-green/5">
       <div className="flex items-center gap-4 mb-12">
@@ -40,7 +48,9 @@ export const TrayectoriaSection: React.FC<TrayectoriaSectionProps> = ({ trayecto
                   <div>
                     {(() => {
                       const claimTarget = item.entidad || item.cargo;
-                      const link = item.entidadId ? buildPath(`/entity?id=${item.entidadId}`) : null;
+                      const link = item.entidadId
+                        ? buildPath(`/entity?id=${item.entidadId}`)
+                        : null;
                       if (link) {
                         return (
                           <a

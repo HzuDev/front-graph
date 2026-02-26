@@ -1,12 +1,14 @@
-import React from "react";
-import { MapPin, Globe, ChevronRight } from "lucide-react";
-import { buildPath } from "../../../../lib/utils/paths";
+import React from 'react';
+import { MapPin, Globe, ChevronRight } from 'lucide-react';
+import { buildPath } from '../../../../lib/utils/paths';
 
 interface JurisdiccionCardProps {
   lugarNacimiento: string;
 }
 
-export const JurisdiccionCard: React.FC<JurisdiccionCardProps> = ({ lugarNacimiento }) => {
+export const JurisdiccionCard: React.FC<JurisdiccionCardProps> = ({
+  lugarNacimiento,
+}) => {
   return (
     <div className="bg-white p-10 rounded-[3.5rem] border border-primary-green/5 shadow-sm relative overflow-hidden group">
       <div className="relative z-10">

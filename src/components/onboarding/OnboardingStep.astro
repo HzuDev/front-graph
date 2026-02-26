@@ -1,7 +1,7 @@
 ---
-import Layout from "../../layouts/Layout.astro";
-import { ArrowRight, Globe } from "lucide-react";
-import Sponsors from "../ui/Sponsors.astro";
+import Layout from '../../layouts/Layout.astro';
+import { Globe } from 'lucide-react';
+import Sponsors from '../ui/Sponsors.astro';
 
 interface Props {
   step: number;
@@ -93,10 +93,10 @@ const dots = Array.from({ length: totalSteps }, (_, i) => i + 1);
               dots.map((dot) => (
                 <div
                   class:list={[
-                    "h-1.5 rounded-full transition-all duration-300",
+                    'h-1.5 rounded-full transition-all duration-300',
                     step === dot
-                      ? "w-8 bg-primary-green"
-                      : "w-2 bg-primary-green/10",
+                      ? 'w-8 bg-primary-green'
+                      : 'w-2 bg-primary-green/10',
                   ]}
                 />
               ))

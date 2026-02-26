@@ -1,19 +1,14 @@
-import React, { useState, useCallback } from "react";
-import {
-  Search,
-  MapPin,
-  Filter,
-  X,
-} from "lucide-react";
-import { buildPath } from "../../../lib/utils/paths";
-import MapViewWrapper from "../MapViewWrapper/MapViewWrapper";
-import { DEPARTMENTS, ENTITY_TYPES, RESULTS_PREVIEW_LIMIT } from "./constants";
-import { useMapFilters } from "./hooks/useMapFilters";
-import { useMapData } from "./hooks/useMapData";
-import DepartmentButton from "./components/DepartmentButton";
-import EntityTypeButton from "./components/EntityTypeButton";
-import ClearFiltersButton from "./components/ClearFiltersButton";
-import ResultEntityCard from "./components/ResultEntityCard";
+import React, { useState, useCallback } from 'react';
+import { Search, MapPin, Filter, X } from 'lucide-react';
+import { buildPath } from '../../../lib/utils/paths';
+import MapViewWrapper from '../MapViewWrapper/MapViewWrapper';
+import { DEPARTMENTS, ENTITY_TYPES, RESULTS_PREVIEW_LIMIT } from './constants';
+import { useMapFilters } from './hooks/useMapFilters';
+import { useMapData } from './hooks/useMapData';
+import DepartmentButton from './components/DepartmentButton';
+import EntityTypeButton from './components/EntityTypeButton';
+import ClearFiltersButton from './components/ClearFiltersButton';
+import ResultEntityCard from './components/ResultEntityCard';
 
 const MapPage: React.FC = () => {
   const {
@@ -29,7 +24,7 @@ const MapPage: React.FC = () => {
   const { entities, loading, mapZoomTarget } = useMapData(
     selectedDepartment,
     selectedType,
-    debouncedSearch,
+    debouncedSearch
   );
 
   const [showFilters, setShowFilters] = useState(true);
@@ -40,24 +35,30 @@ const MapPage: React.FC = () => {
     hasEntity?: boolean;
   } | null>(null);
 
-  const handleMunicipalitySelect = useCallback((municipality: {
-    name: string;
-    department: string;
-    entityId: string;
-    hasEntity?: boolean;
-  }) => {
-    setSelectedMunicipality({
-      name: municipality.name,
-      department: municipality.department,
-      hasEntity: municipality.hasEntity,
-    });
-    setSelectedEntityId(municipality.entityId);
+  const handleMunicipalitySelect = useCallback(
+    (municipality: {
+      name: string;
+      department: string;
+      entityId: string;
+      hasEntity?: boolean;
+    }) => {
+      setSelectedMunicipality({
+        name: municipality.name,
+        department: municipality.department,
+        hasEntity: municipality.hasEntity,
+      });
+      setSelectedEntityId(municipality.entityId);
 
-    setSearchQuery(municipality.name);
-    if (selectedDepartment !== 'Todos' && selectedDepartment !== municipality.department) {
-      setSelectedDepartment(municipality.department);
-    }
-  }, [setSearchQuery, selectedDepartment, setSelectedDepartment]);
+      setSearchQuery(municipality.name);
+      if (
+        selectedDepartment !== 'Todos' &&
+        selectedDepartment !== municipality.department
+      ) {
+        setSelectedDepartment(municipality.department);
+      }
+    },
+    [setSearchQuery, selectedDepartment, setSelectedDepartment]
+  );
 
   return (
     <div className="min-h-screen bg-neutral-white text-primary-green antialiased flex flex-col pt-24 md:pt-28">
@@ -66,7 +67,10 @@ const MapPage: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 shrink-0 border-b border-primary-green/5 pb-6">
           <div className="space-y-1">
             <h1 className="text-3xl md:text-5xl font-black tracking-tighter leading-none">
-              Mapa <span className="text-transparent bg-clip-text bg-linear-to-r from-primary-green to-primary-green/40 italic">Interactivo</span>
+              Mapa{' '}
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-primary-green to-primary-green/40 italic">
+                Interactivo
+              </span>
             </h1>
           </div>
 
@@ -76,9 +80,8 @@ const MapPage: React.FC = () => {
               className="flex items-center gap-2 px-6 py-3 bg-primary-green text-hunter rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:scale-105 transition-transform active:scale-95 shrink-0"
             >
               <Filter size={14} />
-              {showFilters ? "Ocultar Filtros" : "Mostrar Filtros"}
+              {showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros'}
             </button>
-
           </div>
         </div>
 
@@ -88,7 +91,10 @@ const MapPage: React.FC = () => {
             <aside className="w-full lg:w-[320px] space-y-4 overflow-y-auto pr-2 lg:h-full hidescrollbar shrink-0">
               {/* Search Bar */}
               <div className="bg-white border border-primary-green/5 rounded-[2rem] p-5 shadow-sm">
-                <label htmlFor="searchInput" className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-2 block">
+                <label
+                  htmlFor="searchInput"
+                  className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-2 block"
+                >
                   Buscar
                 </label>
                 <div className="relative">
@@ -106,7 +112,7 @@ const MapPage: React.FC = () => {
                   />
                   {searchQuery && (
                     <button
-                      onClick={() => setSearchQuery("")}
+                      onClick={() => setSearchQuery('')}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-primary-green/40 hover:text-primary-green"
                     >
                       <X size={16} />
@@ -155,7 +161,7 @@ const MapPage: React.FC = () => {
                   + de Resultados
                 </p>
                 <h4 className="text-4xl font-black tracking-tighter relative z-10">
-                  {loading ? "..." : entities.length}
+                  {loading ? '...' : entities.length}
                 </h4>
               </div>
             </aside>
@@ -188,14 +194,16 @@ const MapPage: React.FC = () => {
                           </p>
                         </div>
                       </div>
-                      {selectedMunicipality.hasEntity && selectedEntityId && !selectedEntityId.startsWith('municipality_') && (
-                        <a
-                          href={buildPath(`/entity?id=${selectedEntityId}`)}
-                          className="px-4 py-2.5 bg-hunter text-primary-green rounded-lg text-[9px] font-black uppercase tracking-widest hover:scale-105 transition-transform shadow-lg shrink-0"
-                        >
-                          Ver
-                        </a>
-                      )}
+                      {selectedMunicipality.hasEntity &&
+                        selectedEntityId &&
+                        !selectedEntityId.startsWith('municipality_') && (
+                          <a
+                            href={buildPath(`/entity?id=${selectedEntityId}`)}
+                            className="px-4 py-2.5 bg-hunter text-primary-green rounded-lg text-[9px] font-black uppercase tracking-widest hover:scale-105 transition-transform shadow-lg shrink-0"
+                          >
+                            Ver
+                          </a>
+                        )}
                     </div>
                   </div>
                 </div>
@@ -217,41 +225,44 @@ const MapPage: React.FC = () => {
                   Lista de Resultados
                 </h3>
                 {(searchQuery ||
-                  selectedDepartment !== "Todos" ||
-                  selectedType !== "Todas") && (
-                    <ClearFiltersButton
-                      onClear={() => {
-                        setSearchQuery("");
-                        setSelectedDepartment("Todos");
-                        setSelectedType("Todas");
-                      }}
-                    />
-                  )}
+                  selectedDepartment !== 'Todos' ||
+                  selectedType !== 'Todas') && (
+                  <ClearFiltersButton
+                    onClear={() => {
+                      setSearchQuery('');
+                      setSelectedDepartment('Todos');
+                      setSelectedType('Todas');
+                    }}
+                  />
+                )}
               </div>
 
               <div className="flex-1 overflow-y-auto pr-1 space-y-3 hidescrollbar">
                 {loading ? (
                   [1, 2, 3, 4].map((_, index) => (
-                    <div key={`placeholder-${index}`} className="bg-primary-green/5 h-28 rounded-2xl animate-pulse"></div>
+                    <div
+                      key={`placeholder-${index}`}
+                      className="bg-primary-green/5 h-28 rounded-2xl animate-pulse"
+                    ></div>
                   ))
                 ) : entities.length === 0 ? (
                   <div className="text-center py-10 opacity-30">
                     <Search size={32} className="mx-auto mb-4" />
-                    <p className="text-xs font-black uppercase tracking-widest">Sin resultados</p>
+                    <p className="text-xs font-black uppercase tracking-widest">
+                      Sin resultados
+                    </p>
                   </div>
                 ) : (
-                  entities
-                    .slice(0, RESULTS_PREVIEW_LIMIT)
-                    .map((entity) => (
-                      <ResultEntityCard
-                        key={entity.$id}
-                        entity={entity}
-                        isSelected={selectedEntityId === entity.$id}
-                        onSelect={() => {
-                          setSelectedEntityId(entity.$id);
-                        }}
-                      />
-                    ))
+                  entities.slice(0, RESULTS_PREVIEW_LIMIT).map((entity) => (
+                    <ResultEntityCard
+                      key={entity.$id}
+                      entity={entity}
+                      isSelected={selectedEntityId === entity.$id}
+                      onSelect={() => {
+                        setSelectedEntityId(entity.$id);
+                      }}
+                    />
+                  ))
                 )}
               </div>
 
@@ -259,7 +270,7 @@ const MapPage: React.FC = () => {
                 <div className="pt-4 mt-4 border-t border-primary-green/5 shrink-0">
                   <a
                     href={buildPath(
-                      `/search?department=${encodeURIComponent(selectedDepartment)}&type=${encodeURIComponent(selectedType)}&q=${encodeURIComponent(searchQuery)}`,
+                      `/search?department=${encodeURIComponent(selectedDepartment)}&type=${encodeURIComponent(selectedType)}&q=${encodeURIComponent(searchQuery)}`
                     )}
                     className="w-full block bg-primary-green text-hunter py-3.5 rounded-xl font-black text-[9px] uppercase tracking-widest text-center shadow-lg hover:scale-[1.02] transition-transform"
                   >
@@ -271,8 +282,6 @@ const MapPage: React.FC = () => {
           </div>
         </div>
       </main>
-
-
     </div>
   );
 };

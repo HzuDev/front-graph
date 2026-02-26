@@ -1,16 +1,16 @@
-import { databases, DATABASE_ID, COLLECTIONS, Query } from "../appwrite";
-import type { Entity, Claim } from "./types";
-import { PROPERTY_IDS, DEPARTMENT_IDS, CACHE_DURATION } from "./constants";
+import { databases, DATABASE_ID, COLLECTIONS, Query } from '../appwrite';
+import type { Entity, Claim } from './types';
+import { PROPERTY_IDS, DEPARTMENT_IDS, CACHE_DURATION } from './constants';
 
 const QUICK_SEARCH_TYPE_IDS = {
-  POLITICAL_PARTY: "6985697dce1378ac55e9",
-  SURVEY_HOUSE: "69857dc12230ff9c37fd",
+  POLITICAL_PARTY: '6985697dce1378ac55e9',
+  SURVEY_HOUSE: '69857dc12230ff9c37fd',
 };
 
 const QUICK_SEARCH_INSTITUTION_LABELS = [
-  "Organo Electoral Plurinacional",
-  "Ministerio",
-  "Asamblea Legislativa Plurinacional",
+  'Organo Electoral Plurinacional',
+  'Ministerio',
+  'Asamblea Legislativa Plurinacional',
 ];
 
 const searchCache = new Map<
@@ -30,14 +30,14 @@ const quickSearchTypeCache = new Map<
 
 function normalizeText(value: string) {
   return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase();
 }
 
 function calculateQuickSearchScore(entity: Entity, searchKey: string): number {
-  const label = normalizeText(entity.label || "");
-  const description = normalizeText(entity.description || "");
+  const label = normalizeText(entity.label || '');
+  const description = normalizeText(entity.description || '');
   const aliases = (entity.aliases || []).map((a: string) => normalizeText(a));
 
   let score = 0;
@@ -54,7 +54,7 @@ function calculateQuickSearchScore(entity: Entity, searchKey: string): number {
       (word) =>
         label.includes(word) ||
         description.includes(word) ||
-        aliases.some((a) => a.includes(word)),
+        aliases.some((a) => a.includes(word))
     );
     if (allWordsMatch) score += 200;
   }
@@ -78,15 +78,15 @@ async function fetchEntitiesByTypeId(typeId: string): Promise<Entity[]> {
       DATABASE_ID,
       COLLECTIONS.CLAIMS,
       [
-        Query.equal("property", PROPERTY_IDS.INSTANCE_OF),
-        Query.equal("value_relation", typeId),
+        Query.equal('property', PROPERTY_IDS.INSTANCE_OF),
+        Query.equal('value_relation', typeId),
         Query.limit(LIMIT),
         Query.offset(offset),
-      ],
+      ]
     );
 
     response.documents.forEach((claim) => {
-      const id = claim.subject?.$id || (claim.subject as any as string);
+      const id = claim.subject?.$id || (claim.subject as unknown as string);
       if (id) subjectIds.push(id);
     });
 
@@ -109,7 +109,7 @@ async function fetchEntitiesByTypeId(typeId: string): Promise<Entity[]> {
     const response = await databases.listDocuments<Entity>(
       DATABASE_ID,
       COLLECTIONS.ENTITIES,
-      [Query.equal("$id", batch), Query.limit(batchSize)],
+      [Query.equal('$id', batch), Query.limit(batchSize)]
     );
     entities.push(...response.documents);
   }
@@ -123,7 +123,7 @@ async function fetchEntitiesByLabels(labels: string[]): Promise<Entity[]> {
   const response = await databases.listDocuments<Entity>(
     DATABASE_ID,
     COLLECTIONS.ENTITIES,
-    [Query.equal("label", labels), Query.limit(100)],
+    [Query.equal('label', labels), Query.limit(100)]
   );
   return response.documents;
 }
@@ -134,10 +134,10 @@ async function fetchEntitiesByLabels(labels: string[]): Promise<Entity[]> {
 function calculateSearchScore(
   entity: Entity,
   searchKey: string,
-  searchWords: string[],
+  searchWords: string[]
 ): number {
-  const label = (entity.label || "").toLowerCase();
-  const description = (entity.description || "").toLowerCase();
+  const label = (entity.label || '').toLowerCase();
+  const description = (entity.description || '').toLowerCase();
   const aliases = (entity.aliases || []).map((a: string) => a.toLowerCase());
 
   let score = 0;
@@ -163,7 +163,7 @@ function calculateSearchScore(
       (word) =>
         label.includes(word) ||
         description.includes(word) ||
-        aliases.some((a) => a.includes(word)),
+        aliases.some((a) => a.includes(word))
     );
     if (allWordsMatch) score += 200;
   }
@@ -176,10 +176,10 @@ function calculateSearchScore(
  */
 async function performClientSideSearch(
   searchKey: string,
-  searchWords: string[],
+  searchWords: string[]
 ): Promise<Entity[]> {
   const batchSize = 100;
-  const maxBatches = 10; 
+  const maxBatches = 10;
   const allEntities: Entity[] = [];
 
   for (let i = 0; i < maxBatches; i++) {
@@ -189,8 +189,8 @@ async function performClientSideSearch(
       [
         Query.limit(batchSize),
         Query.offset(i * batchSize),
-        Query.orderDesc("$createdAt"),
-      ],
+        Query.orderDesc('$createdAt'),
+      ]
     );
 
     allEntities.push(...batchResponse.documents);
@@ -217,7 +217,7 @@ export async function fetchEntities(
     search?: string;
     limit?: number;
     offset?: number;
-  } = {},
+  } = {}
 ) {
   const { search, limit = 25, offset = 0 } = options;
 
@@ -225,7 +225,7 @@ export async function fetchEntities(
     const queries = [
       Query.limit(limit),
       Query.offset(offset),
-      Query.orderDesc("$createdAt"),
+      Query.orderDesc('$createdAt'),
     ];
 
     if (search) {
@@ -234,8 +234,8 @@ export async function fetchEntities(
       const cached = searchCache.get(searchKey);
       if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
         console.log(
-          "fetchEntities: returning cached results:",
-          cached.data.length,
+          'fetchEntities: returning cached results:',
+          cached.data.length
         );
         return {
           documents: cached.data.slice(offset, offset + limit),
@@ -250,32 +250,32 @@ export async function fetchEntities(
           DATABASE_ID,
           COLLECTIONS.ENTITIES,
           [
-            Query.search("label", search),
+            Query.search('label', search),
             Query.limit(100),
-            Query.orderDesc("$createdAt"),
-          ],
+            Query.orderDesc('$createdAt'),
+          ]
         );
 
         console.log(
-          "fetchEntities: Appwrite search returned:",
-          searchResponse.documents.length,
+          'fetchEntities: Appwrite search returned:',
+          searchResponse.documents.length
         );
         if (searchResponse.documents.length > 0) {
           searchResults = searchResponse.documents;
         }
-      } catch (searchError: any) {
+      } catch {
         console.log(
-          "fetchEntities: Appwrite search failed, falling back to client-side",
+          'fetchEntities: Appwrite search failed, falling back to client-side'
         );
       }
 
       if (searchResults.length === 0) {
-        console.log("fetchEntities: performing client-side search");
+        console.log('fetchEntities: performing client-side search');
         const searchWords = searchKey.split(/\s+/).filter((w) => w.length > 0);
         searchResults = await performClientSideSearch(searchKey, searchWords);
         console.log(
-          "fetchEntities: client-side search returned:",
-          searchResults.length,
+          'fetchEntities: client-side search returned:',
+          searchResults.length
         );
       }
 
@@ -287,17 +287,17 @@ export async function fetchEntities(
 
       if (searchCache.size > 50) {
         const oldestKey = Array.from(searchCache.entries()).sort(
-          (a, b) => a[1].timestamp - b[1].timestamp,
+          (a, b) => a[1].timestamp - b[1].timestamp
         )[0][0];
         searchCache.delete(oldestKey);
       }
 
       console.log(
-        "fetchEntities: returning",
+        'fetchEntities: returning',
         searchResults.slice(offset, offset + limit).length,
-        "of",
+        'of',
         searchResults.length,
-        "total results",
+        'total results'
       );
       return {
         documents: searchResults.slice(offset, offset + limit),
@@ -308,22 +308,25 @@ export async function fetchEntities(
     const response = await databases.listDocuments<Entity>(
       DATABASE_ID,
       COLLECTIONS.ENTITIES,
-      queries,
+      queries
     );
 
     return {
       documents: response.documents,
       total: response.total,
     };
-  } catch (error: any) {
-    console.error("Error fetching entities:", error);
+  } catch (error) {
+    console.error('Error fetching entities:', error);
     throw error;
   }
 }
 
-export async function fetchQuickSearchEntities(options: { search: string; limit?: number }) {
+export async function fetchQuickSearchEntities(options: {
+  search: string;
+  limit?: number;
+}) {
   const { search, limit = 5 } = options;
-  const searchKey = normalizeText(search || "").trim();
+  const searchKey = normalizeText(search || '').trim();
 
   if (!searchKey) {
     return { documents: [], total: 0 };
@@ -338,7 +341,7 @@ export async function fetchQuickSearchEntities(options: { search: string; limit?
   }
 
   const [authorities, parties, surveyHouses, institutions] = await Promise.all([
-    (await import("./authorities")).fetchAuthorities({ search, limit: 25 }),
+    (await import('./authorities')).fetchAuthorities({ search, limit: 25 }),
     fetchEntitiesByTypeId(QUICK_SEARCH_TYPE_IDS.POLITICAL_PARTY),
     fetchEntitiesByTypeId(QUICK_SEARCH_TYPE_IDS.SURVEY_HOUSE),
     fetchEntitiesByLabels(QUICK_SEARCH_INSTITUTION_LABELS),
@@ -347,7 +350,7 @@ export async function fetchQuickSearchEntities(options: { search: string; limit?
   const combined = new Map<string, Entity>();
   authorities.documents.forEach((doc) => combined.set(doc.$id, doc));
 
-  const searchKeyNormalized = normalizeText(search || "").trim();
+  const searchKeyNormalized = normalizeText(search || '').trim();
   const addIfMatches = (doc: Entity) => {
     if (calculateQuickSearchScore(doc, searchKeyNormalized) > 0) {
       combined.set(doc.$id, doc);
@@ -385,11 +388,11 @@ export async function fetchQuickSearchEntities(options: { search: string; limit?
 export async function fetchEntitiesFiltered(
   options: {
     search?: string;
-    entityType?: string; 
+    entityType?: string;
     department?: string;
     limit?: number;
     offset?: number;
-  } = {},
+  } = {}
 ) {
   const { search, entityType, department, limit = 25, offset = 0 } = options;
 
@@ -398,35 +401,49 @@ export async function fetchEntitiesFiltered(
     entityType,
     department,
     limit,
-    offset
+    offset,
   });
 
   try {
     let filteredIds: string[] | null = null;
 
-    if (entityType && entityType !== "Todas") {
-      console.log(`[fetchEntitiesFiltered] Aplicando filtro de tipo: "${entityType}"`);
+    if (entityType && entityType !== 'Todas') {
+      console.log(
+        `[fetchEntitiesFiltered] Aplicando filtro de tipo: "${entityType}"`
+      );
       const typeIds = await getEntitiesByType(entityType);
-      console.log(`[fetchEntitiesFiltered] IDs encontrados por tipo:`, typeIds.length);
+      console.log(
+        `[fetchEntitiesFiltered] IDs encontrados por tipo:`,
+        typeIds.length
+      );
       filteredIds = typeIds;
     }
 
-    if (department && department !== "Todos") {
-      console.log(`[fetchEntitiesFiltered] Aplicando filtro de departamento: "${department}"`);
+    if (department && department !== 'Todos') {
+      console.log(
+        `[fetchEntitiesFiltered] Aplicando filtro de departamento: "${department}"`
+      );
       const deptIds = await getEntitiesByDepartment(department);
-      console.log(`[fetchEntitiesFiltered] IDs encontrados por departamento:`, deptIds.length);
+      console.log(
+        `[fetchEntitiesFiltered] IDs encontrados por departamento:`,
+        deptIds.length
+      );
 
       if (filteredIds) {
         const beforeIntersection = filteredIds.length;
         filteredIds = filteredIds.filter((id) => deptIds.includes(id));
-        console.log(`[fetchEntitiesFiltered] IDs después de intersección tipo+departamento: ${filteredIds.length} (antes: ${beforeIntersection})`);
+        console.log(
+          `[fetchEntitiesFiltered] IDs después de intersección tipo+departamento: ${filteredIds.length} (antes: ${beforeIntersection})`
+        );
       } else {
         filteredIds = deptIds;
       }
     }
 
     if (filteredIds && filteredIds.length > 0) {
-      console.log(`[fetchEntitiesFiltered] Obteniendo entidades para ${filteredIds.length} IDs filtrados`);
+      console.log(
+        `[fetchEntitiesFiltered] Obteniendo entidades para ${filteredIds.length} IDs filtrados`
+      );
       const entities: Entity[] = [];
 
       const batchSize = 25;
@@ -436,40 +453,57 @@ export async function fetchEntitiesFiltered(
         const response = await databases.listDocuments<Entity>(
           DATABASE_ID,
           COLLECTIONS.ENTITIES,
-          [Query.equal("$id", batch), Query.limit(batchSize)],
+          [Query.equal('$id', batch), Query.limit(batchSize)]
         );
         entities.push(...response.documents);
       }
 
-      console.log(`[fetchEntitiesFiltered] Entidades obtenidas:`, entities.length);
+      console.log(
+        `[fetchEntitiesFiltered] Entidades obtenidas:`,
+        entities.length
+      );
 
       let results = entities;
       if (search) {
-        console.log(`[fetchEntitiesFiltered] Aplicando búsqueda de texto: "${search}"`);
+        console.log(
+          `[fetchEntitiesFiltered] Aplicando búsqueda de texto: "${search}"`
+        );
         const searchLower = search.toLowerCase();
         results = entities.filter(
           (entity) =>
             entity.label?.toLowerCase().includes(searchLower) ||
             entity.description?.toLowerCase().includes(searchLower) ||
-            entity.aliases?.some((a) => a.toLowerCase().includes(searchLower)),
+            entity.aliases?.some((a) => a.toLowerCase().includes(searchLower))
         );
-        console.log(`[fetchEntitiesFiltered] Resultados después de búsqueda:`, results.length);
+        console.log(
+          `[fetchEntitiesFiltered] Resultados después de búsqueda:`,
+          results.length
+        );
       }
 
-      console.log(`[fetchEntitiesFiltered] Retornando ${results.slice(offset, offset + limit).length} de ${results.length} resultados totales`);
+      console.log(
+        `[fetchEntitiesFiltered] Retornando ${results.slice(offset, offset + limit).length} de ${results.length} resultados totales`
+      );
       return {
         documents: results.slice(offset, offset + limit),
         total: results.length,
       };
     }
 
-    console.log('[fetchEntitiesFiltered] No hay filtros aplicados, usando fetchEntities estándar');
+    console.log(
+      '[fetchEntitiesFiltered] No hay filtros aplicados, usando fetchEntities estándar'
+    );
     const result = await fetchEntities({ search, limit, offset });
-    console.log(`[fetchEntitiesFiltered] Resultados de fetchEntities:`, result.documents.length, 'de', result.total);
+    console.log(
+      `[fetchEntitiesFiltered] Resultados de fetchEntities:`,
+      result.documents.length,
+      'de',
+      result.total
+    );
 
     return result;
   } catch (error) {
-    console.error("[fetchEntitiesFiltered] Error:", error);
+    console.error('[fetchEntitiesFiltered] Error:', error);
     return { documents: [], total: 0 };
   }
 }
@@ -482,17 +516,22 @@ export async function fetchEntitiesFiltered(
 export async function getEntitiesByType(typeName: string): Promise<string[]> {
   try {
     console.log(`[getEntitiesByType] Buscando tipo: "${typeName}"`);
-    
+
     const typeEntities = await databases.listDocuments<Entity>(
       DATABASE_ID,
       COLLECTIONS.ENTITIES,
-      [Query.equal("label", typeName), Query.limit(10)],
+      [Query.equal('label', typeName), Query.limit(10)]
     );
 
-    console.log(`[getEntitiesByType] Entidades encontradas con label "${typeName}":`, typeEntities.documents.length);
-    
+    console.log(
+      `[getEntitiesByType] Entidades encontradas con label "${typeName}":`,
+      typeEntities.documents.length
+    );
+
     if (typeEntities.documents.length === 0) {
-      console.warn(`[getEntitiesByType] No se encontró ninguna entidad con label exacto "${typeName}"`);
+      console.warn(
+        `[getEntitiesByType] No se encontró ninguna entidad con label exacto "${typeName}"`
+      );
       return [];
     }
 
@@ -503,23 +542,34 @@ export async function getEntitiesByType(typeName: string): Promise<string[]> {
       DATABASE_ID,
       COLLECTIONS.CLAIMS,
       [
-        Query.equal("property", PROPERTY_IDS.INSTANCE_OF),
-        Query.equal("value_relation", typeId),
+        Query.equal('property', PROPERTY_IDS.INSTANCE_OF),
+        Query.equal('value_relation', typeId),
         Query.limit(1000),
-      ],
+      ]
     );
 
-    console.log(`[getEntitiesByType] Claims encontrados para tipo "${typeName}":`, claims.documents.length);
-    
+    console.log(
+      `[getEntitiesByType] Claims encontrados para tipo "${typeName}":`,
+      claims.documents.length
+    );
+
     const entityIds = claims.documents
-      .map((claim) => claim.subject?.$id || (claim.subject as any as string))
+      .map(
+        (claim) => claim.subject?.$id || (claim.subject as unknown as string)
+      )
       .filter(Boolean);
-    
-    console.log(`[getEntitiesByType] IDs de entidades extraídos:`, entityIds.length);
-    
+
+    console.log(
+      `[getEntitiesByType] IDs de entidades extraídos:`,
+      entityIds.length
+    );
+
     return entityIds;
   } catch (error) {
-    console.error(`[getEntitiesByType] Error getting entities by type "${typeName}":`, error);
+    console.error(
+      `[getEntitiesByType] Error getting entities by type "${typeName}":`,
+      error
+    );
     return [];
   }
 }
@@ -530,45 +580,62 @@ export async function getEntitiesByType(typeName: string): Promise<string[]> {
  * @returns Array of entity IDs that are part of the given department
  */
 export async function getEntitiesByDepartment(
-  departmentName: string,
+  departmentName: string
 ): Promise<string[]> {
   try {
-    console.log(`[getEntitiesByDepartment] Buscando departamento: "${departmentName}"`);
-    
+    console.log(
+      `[getEntitiesByDepartment] Buscando departamento: "${departmentName}"`
+    );
+
     const departmentId =
       DEPARTMENT_IDS[departmentName as keyof typeof DEPARTMENT_IDS];
 
     if (!departmentId) {
-      console.warn(`[getEntitiesByDepartment] No se encontró ID para departamento "${departmentName}"`);
-      console.log(`[getEntitiesByDepartment] Departamentos disponibles:`, Object.keys(DEPARTMENT_IDS));
+      console.warn(
+        `[getEntitiesByDepartment] No se encontró ID para departamento "${departmentName}"`
+      );
+      console.log(
+        `[getEntitiesByDepartment] Departamentos disponibles:`,
+        Object.keys(DEPARTMENT_IDS)
+      );
       return [];
     }
 
-    console.log(`[getEntitiesByDepartment] ID del departamento: ${departmentId}`);
+    console.log(
+      `[getEntitiesByDepartment] ID del departamento: ${departmentId}`
+    );
 
     const claims = await databases.listDocuments<Claim>(
       DATABASE_ID,
       COLLECTIONS.CLAIMS,
       [
-        Query.equal("property", PROPERTY_IDS.PART_OF),
-        Query.equal("value_relation", departmentId),
+        Query.equal('property', PROPERTY_IDS.PART_OF),
+        Query.equal('value_relation', departmentId),
         Query.limit(1000),
-      ],
+      ]
     );
 
-    console.log(`[getEntitiesByDepartment] Claims encontrados para departamento "${departmentName}":`, claims.documents.length);
-    
+    console.log(
+      `[getEntitiesByDepartment] Claims encontrados para departamento "${departmentName}":`,
+      claims.documents.length
+    );
+
     const entityIds = claims.documents
-      .map((claim) => claim.subject?.$id || (claim.subject as any as string))
+      .map(
+        (claim) => claim.subject?.$id || (claim.subject as unknown as string)
+      )
       .filter(Boolean);
-    
-    console.log(`[getEntitiesByDepartment] IDs de entidades extraídos:`, entityIds.length);
+
+    console.log(
+      `[getEntitiesByDepartment] IDs de entidades extraídos:`,
+      entityIds.length
+    );
 
     return entityIds;
   } catch (error) {
     console.error(
       `[getEntitiesByDepartment] Error getting entities by department "${departmentName}":`,
-      error,
+      error
     );
     return [];
   }

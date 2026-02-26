@@ -1,12 +1,12 @@
-
-import { useState, useEffect, useRef, useCallback, useReducer } from "react";
-import { MapPin, ArrowRight } from "lucide-react";
+import { useEffect, useRef, useCallback, useReducer } from 'react';
+import { MapPin, ArrowRight } from 'lucide-react';
 import {
   getMunicipalityIndex,
   findMunicipalityByCoords,
   searchMunicipalities,
   type MunicipalityEntry,
-} from "../../lib/queries/municipality-index";
+} from '../../lib/queries/municipality-index';
+import { buildPath } from '../../lib/utils/paths';
 
 type LocationData = {
   lat: number;
@@ -14,17 +14,16 @@ type LocationData = {
   municipalityId: string;
   municipalityName: string;
   departmentName: string;
-  detectionMethod: "gps" | "ip" | "manual";
+  detectionMethod: 'gps' | 'ip' | 'manual';
 };
 
 type StatusState =
-  | { type: "idle" }
-  | { type: "loading"; message: string }
-  | { type: "success"; title: string; message?: string }
-  | { type: "error"; title: string; message?: string };
+  | { type: 'idle' }
+  | { type: 'loading'; message: string }
+  | { type: 'success'; title: string; message?: string }
+  | { type: 'error'; title: string; message?: string };
 
-
-function Spinner({ className = "h-5 w-5" }: { className?: string }) {
+function Spinner({ className = 'h-5 w-5' }: { className?: string }) {
   return (
     <svg
       className={`animate-spin ${className}`}
@@ -49,10 +48,9 @@ function Spinner({ className = "h-5 w-5" }: { className?: string }) {
   );
 }
 
-
 function StatusBanner({ status }: { status: StatusState }) {
-  if (status.type === "idle") return null;
-  if (status.type === "loading") {
+  if (status.type === 'idle') return null;
+  if (status.type === 'loading') {
     return (
       <div className="mt-4 p-4 rounded-lg border bg-blue-50 text-blue-800 border-blue-200 flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
         <Spinner className="h-5 w-5 shrink-0" />
@@ -60,11 +58,11 @@ function StatusBanner({ status }: { status: StatusState }) {
       </div>
     );
   }
-  const isError = status.type === "error";
+  const isError = status.type === 'error';
   const colors = isError
-    ? "bg-red-50 text-red-800 border-red-200"
-    : "bg-green-50 text-green-800 border-green-200";
-  const icon = isError ? "⚠️" : "✅";
+    ? 'bg-red-50 text-red-800 border-red-200'
+    : 'bg-green-50 text-green-800 border-green-200';
+  const icon = isError ? '⚠️' : '✅';
   return (
     <div
       className={`mt-4 p-4 rounded-lg border ${colors} flex items-start gap-3 animate-in fade-in slide-in-from-top-2 duration-300`}
@@ -80,7 +78,7 @@ function StatusBanner({ status }: { status: StatusState }) {
   );
 }
 
-type GpsState = "idle" | "detecting" | "found" | "error";
+type GpsState = 'idle' | 'detecting' | 'found' | 'error';
 
 type PickerState = {
   index: MunicipalityEntry[];
@@ -95,39 +93,45 @@ type PickerState = {
 };
 
 type PickerAction =
-  | { type: "INDEX_SUCCESS"; payload: MunicipalityEntry[] }
-  | { type: "INDEX_ERROR" }
-  | { type: "SET_QUERY"; payload: string }
-  | { type: "SET_RESULTS"; payload: MunicipalityEntry[] }
-  | { type: "SET_SHOW_RESULTS"; payload: boolean }
-  | { type: "SET_SELECTED"; payload: MunicipalityEntry | null }
-  | { type: "GPS_SET_STATE"; payload: { gpsState: GpsState; status: StatusState } };
+  | { type: 'INDEX_SUCCESS'; payload: MunicipalityEntry[] }
+  | { type: 'INDEX_ERROR' }
+  | { type: 'SET_QUERY'; payload: string }
+  | { type: 'SET_RESULTS'; payload: MunicipalityEntry[] }
+  | { type: 'SET_SHOW_RESULTS'; payload: boolean }
+  | { type: 'SET_SELECTED'; payload: MunicipalityEntry | null }
+  | {
+      type: 'GPS_SET_STATE';
+      payload: { gpsState: GpsState; status: StatusState };
+    };
 
-const pickerReducer = (state: PickerState, action: PickerAction): PickerState => {
+const pickerReducer = (
+  state: PickerState,
+  action: PickerAction
+): PickerState => {
   switch (action.type) {
-    case "INDEX_SUCCESS":
+    case 'INDEX_SUCCESS':
       return {
         ...state,
         index: action.payload,
         indexLoaded: true,
         indexError: false,
       };
-    case "INDEX_ERROR":
+    case 'INDEX_ERROR':
       return {
         ...state,
         index: [],
         indexLoaded: true,
         indexError: true,
       };
-    case "SET_QUERY":
+    case 'SET_QUERY':
       return { ...state, query: action.payload };
-    case "SET_RESULTS":
+    case 'SET_RESULTS':
       return { ...state, results: action.payload };
-    case "SET_SHOW_RESULTS":
+    case 'SET_SHOW_RESULTS':
       return { ...state, showResults: action.payload };
-    case "SET_SELECTED":
+    case 'SET_SELECTED':
       return { ...state, selected: action.payload };
-    case "GPS_SET_STATE":
+    case 'GPS_SET_STATE':
       return {
         ...state,
         gpsState: action.payload.gpsState,
@@ -143,12 +147,12 @@ export default function MunicipalityPicker() {
     index: [],
     indexLoaded: false,
     indexError: false,
-    query: "",
+    query: '',
     results: [],
     showResults: false,
     selected: null,
-    gpsState: "idle",
-    status: { type: "idle" },
+    gpsState: 'idle',
+    status: { type: 'idle' },
   });
 
   const {
@@ -170,10 +174,10 @@ export default function MunicipalityPicker() {
   useEffect(() => {
     getMunicipalityIndex()
       .then((data) => {
-        dispatch({ type: "INDEX_SUCCESS", payload: data });
+        dispatch({ type: 'INDEX_SUCCESS', payload: data });
       })
       .catch(() => {
-        dispatch({ type: "INDEX_ERROR" });
+        dispatch({ type: 'INDEX_ERROR' });
       });
   }, []);
 
@@ -185,49 +189,49 @@ export default function MunicipalityPicker() {
         resultsRef.current &&
         !resultsRef.current.contains(e.target as Node)
       ) {
-        dispatch({ type: "SET_SHOW_RESULTS", payload: false });
+        dispatch({ type: 'SET_SHOW_RESULTS', payload: false });
       }
     };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
   }, []);
 
   const handleSearch = useCallback(
     (value: string) => {
       if (!indexLoaded || !index.length) return;
 
-      dispatch({ type: "SET_QUERY", payload: value });
+      dispatch({ type: 'SET_QUERY', payload: value });
 
       if (debounceRef.current) clearTimeout(debounceRef.current);
       debounceRef.current = setTimeout(() => {
         const matches = searchMunicipalities(index, value);
-        dispatch({ type: "SET_RESULTS", payload: matches });
-        dispatch({ type: "SET_SHOW_RESULTS", payload: true });
+        dispatch({ type: 'SET_RESULTS', payload: matches });
+        dispatch({ type: 'SET_SHOW_RESULTS', payload: true });
       }, 250);
     },
-    [index, indexLoaded],
+    [index, indexLoaded]
   );
 
   const handleFocus = useCallback(() => {
     if (!indexLoaded || !index.length) return;
     const matches = searchMunicipalities(index, query);
-    dispatch({ type: "SET_RESULTS", payload: matches });
-    dispatch({ type: "SET_SHOW_RESULTS", payload: true });
+    dispatch({ type: 'SET_RESULTS', payload: matches });
+    dispatch({ type: 'SET_SHOW_RESULTS', payload: true });
   }, [index, indexLoaded, query]);
 
   const handleSelect = (item: MunicipalityEntry) => {
-    dispatch({ type: "SET_SELECTED", payload: item });
-    dispatch({ type: "SET_QUERY", payload: item.name });
-    dispatch({ type: "SET_SHOW_RESULTS", payload: false });
+    dispatch({ type: 'SET_SELECTED', payload: item });
+    dispatch({ type: 'SET_QUERY', payload: item.name });
+    dispatch({ type: 'SET_SHOW_RESULTS', payload: false });
   };
 
   const handleGpsClick = useCallback(async () => {
-    if (gpsState === "detecting") return;
+    if (gpsState === 'detecting') return;
     dispatch({
-      type: "GPS_SET_STATE",
+      type: 'GPS_SET_STATE',
       payload: {
-        gpsState: "detecting",
-        status: { type: "loading", message: "Detectando ubicación..." },
+        gpsState: 'detecting',
+        status: { type: 'loading', message: 'Detectando ubicación...' },
       },
     });
 
@@ -235,16 +239,16 @@ export default function MunicipalityPicker() {
     if (!indexLoaded || !idx.length) {
       try {
         idx = await getMunicipalityIndex();
-        dispatch({ type: "INDEX_SUCCESS", payload: idx });
+        dispatch({ type: 'INDEX_SUCCESS', payload: idx });
       } catch {
         dispatch({
-          type: "GPS_SET_STATE",
+          type: 'GPS_SET_STATE',
           payload: {
-            gpsState: "error",
+            gpsState: 'error',
             status: {
-              type: "error",
-              title: "Error de datos",
-              message: "No se pudo cargar el índice de municipios.",
+              type: 'error',
+              title: 'Error de datos',
+              message: 'No se pudo cargar el índice de municipios.',
             },
           },
         });
@@ -252,15 +256,32 @@ export default function MunicipalityPicker() {
       }
     }
 
+    if (!globalThis.isSecureContext) {
+      dispatch({
+        type: 'GPS_SET_STATE',
+        payload: {
+          gpsState: 'error',
+          status: {
+            type: 'error',
+            title: 'Requiere HTTPS',
+            message:
+              'Tu navegador requiere una conexión segura (HTTPS) para usar GPS. Abre el sitio con https:// o usa la búsqueda manual.',
+          },
+        },
+      });
+      return;
+    }
+
     if (!navigator.geolocation) {
       dispatch({
-        type: "GPS_SET_STATE",
+        type: 'GPS_SET_STATE',
         payload: {
-          gpsState: "error",
+          gpsState: 'error',
           status: {
-            type: "error",
-            title: "No soportado",
-            message: "Tu navegador no soporta geolocalización. Busca manualmente.",
+            type: 'error',
+            title: 'No soportado',
+            message:
+              'Tu navegador no soporta geolocalización. Busca manualmente.',
           },
         },
       });
@@ -268,22 +289,38 @@ export default function MunicipalityPicker() {
     }
 
     try {
-      const position = await new Promise<GeolocationPosition>(
-        (resolve, reject) => {
+      const position: GeolocationPosition =
+        await new Promise<GeolocationPosition>((resolve, reject) => {
           navigator.geolocation.getCurrentPosition(resolve, reject, {
-            timeout: 3000,
-            enableHighAccuracy: false,
-            maximumAge: 300_000,
+            timeout: 10000,
+            enableHighAccuracy: true,
+            maximumAge: 0,
           });
-        },
-      );
+        });
 
-      const { latitude, longitude } = position.coords;
+      const { latitude, longitude, accuracy } = position.coords;
+
+      if (Number.isFinite(accuracy) && accuracy > 1500) {
+        dispatch({
+          type: 'GPS_SET_STATE',
+          payload: {
+            gpsState: 'error',
+            status: {
+              type: 'error',
+              title: 'Ubicación imprecisa',
+              message:
+                'Tu ubicación salió muy aproximada. Activa el GPS/ubicación precisa e intenta nuevamente, o busca tu municipio manualmente.',
+            },
+          },
+        });
+        return;
+      }
+
       dispatch({
-        type: "GPS_SET_STATE",
+        type: 'GPS_SET_STATE',
         payload: {
-          gpsState,
-          status: { type: "loading", message: "Buscando municipio..." },
+          gpsState: 'detecting',
+          status: { type: 'loading', message: 'Buscando municipio...' },
         },
       });
 
@@ -296,55 +333,57 @@ export default function MunicipalityPicker() {
           municipalityId: found.id,
           municipalityName: found.name,
           departmentName: found.department,
-          detectionMethod: "gps",
+          detectionMethod: 'gps',
         };
         localStorage.setItem(
-          "user_location",
-          JSON.stringify({ lat: latitude, lon: longitude }),
+          'user_location',
+          JSON.stringify({ lat: latitude, lon: longitude })
         );
         localStorage.setItem(
-          "detected_municipality",
-          JSON.stringify(locationData),
+          'detected_municipality',
+          JSON.stringify(locationData)
         );
 
         dispatch({
-          type: "GPS_SET_STATE",
+          type: 'GPS_SET_STATE',
           payload: {
-            gpsState: "found",
+            gpsState: 'found',
             status: {
-              type: "success",
-              title: "Ubicación detectada",
-              message: `Municipio: ${found.name}`,
+              type: 'success',
+              title: 'Ubicación detectada',
+              message: `Municipio: ${found.name}${Number.isFinite(accuracy) ? ` (±${Math.round(accuracy)}m)` : ''}`,
             },
           },
         });
 
         setTimeout(() => {
-          const base = import.meta.env.PUBLIC_BASE_URL ?? "/";
-          const baseRoute = import.meta.env.PUBLIC_BASE_ROUTE ?? "/";
-          window.location.href = `${base.replace(/\/$/, "")}${baseRoute.replace(/\/$/, "")}/onboarding/3`;
+          window.location.href = buildPath('/onboarding/3');
         }, 900);
       } else {
-        throw new Error("out-of-range");
+        throw new Error('out-of-range');
       }
     } catch (err: unknown) {
-      let msg = "No pudimos detectar tu ubicación. Busca manualmente abajo.";
-      if (err && typeof err === "object" && "code" in err) {
+      let msg = 'No pudimos detectar tu ubicación. Busca manualmente abajo.';
+      if (err && typeof err === 'object' && 'code' in err) {
         const geoErr = err as GeolocationPositionError;
         if (geoErr.code === 1)
-          msg = "Necesitamos permiso para usar tu ubicación. Busca manualmente.";
+          msg =
+            'Necesitamos permiso para usar tu ubicación. Busca manualmente.';
+        else if (geoErr.code === 2)
+          msg =
+            'Tu navegador o dispositivo no pudo determinar la ubicación (POSITION_UNAVAILABLE). Busca manualmente.';
         else if (geoErr.code === 3)
-          msg = "GPS tardó demasiado. Busca tu municipio manualmente.";
-      } else if (err instanceof Error && err.message === "out-of-range") {
+          msg = 'GPS tardó demasiado. Busca tu municipio manualmente.';
+      } else if (err instanceof Error && err.message === 'out-of-range') {
         msg =
-          "No encontramos tu municipio. ¿Estás en Bolivia? Busca manualmente.";
+          'No encontramos tu municipio. ¿Estás en Bolivia? Busca manualmente.';
       }
 
       dispatch({
-        type: "GPS_SET_STATE",
+        type: 'GPS_SET_STATE',
         payload: {
-          gpsState: "error",
-          status: { type: "error", title: "Error de ubicación", message: msg },
+          gpsState: 'error',
+          status: { type: 'error', title: 'Error de ubicación', message: msg },
         },
       });
     }
@@ -359,20 +398,15 @@ export default function MunicipalityPicker() {
       municipalityId: selected.id,
       municipalityName: selected.name,
       departmentName: selected.department,
-      detectionMethod: "manual",
+      detectionMethod: 'manual',
     };
-    localStorage.setItem(
-      "detected_municipality",
-      JSON.stringify(locationData),
-    );
+    localStorage.setItem('detected_municipality', JSON.stringify(locationData));
 
-    const base = import.meta.env.PUBLIC_BASE_URL ?? "/";
-    const baseRoute = import.meta.env.PUBLIC_BASE_ROUTE ?? "/";
-    window.location.href = `${base.replace(/\/$/, "")}${baseRoute.replace(/\/$/, "")}/onboarding/3`;
+    window.location.href = buildPath('/onboarding/3');
   };
 
   const gpsButtonContent = () => {
-    if (gpsState === "detecting") {
+    if (gpsState === 'detecting') {
       return (
         <>
           <span className="flex items-center gap-2">
@@ -383,10 +417,11 @@ export default function MunicipalityPicker() {
         </>
       );
     }
-    if (gpsState === "found") {
+    if (gpsState === 'found') {
       return <span>✅ ¡Municipio encontrado!</span>;
     }
-    const label = gpsState === "error" ? "Intentar de nuevo" : "Usar mi ubicación";
+    const label =
+      gpsState === 'error' ? 'Intentar de nuevo' : 'Usar mi ubicación';
     return (
       <>
         <span className="flex items-center gap-2">
@@ -399,10 +434,10 @@ export default function MunicipalityPicker() {
   };
 
   const inputPlaceholder = indexError
-    ? "Error al cargar municipios"
+    ? 'Error al cargar municipios'
     : indexLoaded
-      ? "Buscar municipio..."
-      : "Cargando municipios...";
+      ? 'Buscar municipio...'
+      : 'Cargando municipios...';
 
   return (
     <div className="space-y-4">
@@ -411,11 +446,12 @@ export default function MunicipalityPicker() {
       {/* GPS button */}
       <button
         onClick={handleGpsClick}
-        disabled={gpsState === "detecting" || gpsState === "found"}
-        className={`w-full group p-5 rounded-2xl font-bold text-lg flex items-center justify-between hover:shadow-2xl transition-all hover:scale-[1.02] active:scale-[0.98] disabled:cursor-wait ${gpsState === "found"
-          ? "bg-green-600 text-white shadow-lg scale-[1.02] justify-center disabled:opacity-100"
-          : "bg-primary-green text-hunter hover:shadow-primary-green/30 disabled:opacity-70"
-          }`}
+        disabled={gpsState === 'detecting' || gpsState === 'found'}
+        className={`w-full group p-5 rounded-2xl font-bold text-lg flex items-center justify-between hover:shadow-2xl transition-all hover:scale-[1.02] active:scale-[0.98] disabled:cursor-wait ${
+          gpsState === 'found'
+            ? 'bg-green-600 text-white shadow-lg scale-[1.02] justify-center disabled:opacity-100'
+            : 'bg-primary-green text-hunter hover:shadow-primary-green/30 disabled:opacity-70'
+        }`}
       >
         {gpsButtonContent()}
       </button>
@@ -480,16 +516,19 @@ export default function MunicipalityPicker() {
             </div>
           )}
 
-          {showResults && indexLoaded && results.length === 0 && query.trim() && (
-            <div
-              ref={resultsRef}
-              className="absolute top-[calc(100%+8px)] left-0 right-0 bg-white border border-primary-green/10 rounded-2xl shadow-xl z-50"
-            >
-              <div className="p-4 text-sm text-primary-green/50 text-center font-medium">
-                No encontramos municipios con ese nombre.
+          {showResults &&
+            indexLoaded &&
+            results.length === 0 &&
+            query.trim() && (
+              <div
+                ref={resultsRef}
+                className="absolute top-[calc(100%+8px)] left-0 right-0 bg-white border border-primary-green/10 rounded-2xl shadow-xl z-50"
+              >
+                <div className="p-4 text-sm text-primary-green/50 text-center font-medium">
+                  No encontramos municipios con ese nombre.
+                </div>
               </div>
-            </div>
-          )}
+            )}
         </div>
 
         <button

@@ -79,6 +79,7 @@ pnpm run generate-municipalities
 ```
 
 Este comando:
+
 - Descarga el GeoJSON municipal desde Appwrite
 - Genera el índice con coordenadas y polígonos simplificados
 - Actualiza `public/municipalities-index.json`
@@ -110,7 +111,8 @@ PUBLIC_APPWRITE_PROJECT_ID=tu-project-id-aqui
 PUBLIC_APPWRITE_DATABASE_ID=tu-database-id-aqui
 ```
 
-**Importante**: 
+**Importante**:
+
 - Crea un archivo `.env` basado en `.env.example`
 - Nunca subas el archivo `.env` al repositorio
 - Para GitHub Pages, configura estos valores como **Secrets** en tu repositorio (ver [DEPLOY.md](./DEPLOY.md))
@@ -121,9 +123,9 @@ El proyecto usa las siguientes configuraciones en `astro.config.mjs`:
 
 ```javascript
 export default defineConfig({
-  output: "static",
-  site: "https://hzudev.github.io",
-  base: "/front-graph",
+  output: 'static',
+  site: 'https://hzudev.github.io',
+  base: '/front-graph',
 });
 ```
 
@@ -180,6 +182,7 @@ El proyecto incluye una página 404 personalizada que funciona correctamente en 
 - **Responsive**: Se adapta a todos los tamaños de pantalla
 
 ### Archivos relacionados:
+
 - `src/pages/404.astro` - Página 404 principal con diseño completo
 - `public/404.html` - Fallback para GitHub Pages con redirección automática
 
