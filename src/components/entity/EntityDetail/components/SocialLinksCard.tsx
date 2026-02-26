@@ -1,12 +1,21 @@
-import React from "react";
-import { ExternalLink, Facebook, Twitter, Instagram, Linkedin, Globe as GlobeIcon } from "lucide-react";
-import type { SocialLink } from "../types";
+import React from 'react';
+import {
+  ExternalLink,
+  Facebook,
+  Twitter,
+  Instagram,
+  Linkedin,
+  Globe as GlobeIcon,
+} from 'lucide-react';
+import type { SocialLink } from '../types';
 
 interface SocialLinksCardProps {
   socialLinks: SocialLink[];
 }
 
-export const SocialLinksCard: React.FC<SocialLinksCardProps> = ({ socialLinks }) => {
+export const SocialLinksCard: React.FC<SocialLinksCardProps> = ({
+  socialLinks,
+}) => {
   if (socialLinks.length === 0) return null;
 
   return (
@@ -18,7 +27,9 @@ export const SocialLinksCard: React.FC<SocialLinksCardProps> = ({ socialLinks })
         {socialLinks.map((link) => (
           <a
             key={link.url}
-            href={link.url.startsWith("http") ? link.url : `https://${link.url}`}
+            href={
+              link.url.startsWith('http') ? link.url : `https://${link.url}`
+            }
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-between p-5 bg-white rounded-2xl hover:scale-[1.02] transition-all group shadow-sm"
@@ -54,7 +65,10 @@ export const SocialLinksCard: React.FC<SocialLinksCardProps> = ({ socialLinks })
                 {link.type === 'web' ? 'Sitio Web' : link.type}
               </span>
             </div>
-            <ExternalLink size={16} className="opacity-20 group-hover:opacity-100" />
+            <ExternalLink
+              size={16}
+              className="opacity-20 group-hover:opacity-100"
+            />
           </a>
         ))}
       </div>

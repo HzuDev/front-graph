@@ -1,10 +1,10 @@
-import React, { useEffect, useReducer } from "react";
-import { Loader2 } from "lucide-react";
-import { fetchEntityDetails, type Entity, type Claim } from "../../lib/queries";
-import type { EntityType } from "../../lib/appwrite/entity-utils";
-import { EntityDetail } from "./EntityDetail";
-import { EntityRenderer } from "@/components/entity/views/EntityRenderer";
-import { buildPath } from "../../lib/utils/paths";
+import React, { useEffect, useReducer } from 'react';
+import { Loader2 } from 'lucide-react';
+import { fetchEntityDetails, type Entity, type Claim } from '../../lib/queries';
+import type { EntityType } from '../../lib/appwrite/entity-utils';
+import { EntityDetail } from './EntityDetail';
+import { EntityRenderer } from '@/components/entity/views/EntityRenderer';
+import { buildPath } from '../../lib/utils/paths';
 
 interface EntityPageState {
   entity: Entity | null;
@@ -14,12 +14,18 @@ interface EntityPageState {
   error: string | null;
 }
 
-type EntityPageAction = 
+type EntityPageAction =
   | { type: 'SET_LOADING'; payload: boolean }
-  | { type: 'SET_DATA'; payload: { entity: Entity; claims: Claim[]; entityType: EntityType } }
+  | {
+      type: 'SET_DATA';
+      payload: { entity: Entity; claims: Claim[]; entityType: EntityType };
+    }
   | { type: 'SET_ERROR'; payload: string };
 
-const entityPageReducer = (state: EntityPageState, action: EntityPageAction): EntityPageState => {
+const entityPageReducer = (
+  state: EntityPageState,
+  action: EntityPageAction
+): EntityPageState => {
   switch (action.type) {
     case 'SET_LOADING':
       return { ...state, loading: action.payload };
@@ -48,7 +54,7 @@ export default function EntityPage() {
     entity: null,
     claims: [],
     loading: true,
-    entityType: "UNKNOWN",
+    entityType: 'UNKNOWN',
     error: null,
   });
 
@@ -56,17 +62,23 @@ export default function EntityPage() {
     const loadData = async () => {
       try {
         const params = new URLSearchParams(window.location.search);
-        const id = params.get("id");
+        const id = params.get('id');
 
         if (!id) {
-          dispatch({ type: 'SET_ERROR', payload: "ID de entidad no proporcionado" });
+          dispatch({
+            type: 'SET_ERROR',
+            payload: 'ID de entidad no proporcionado',
+          });
           return;
         }
 
         // Single await — fetches entity, all claims, qualifiers, references,
         // and derives entity type all in one pass. No intermediate empty renders.
-        const { entity: loadedEntity, claims: loadedClaims, entityType: resolvedType } =
-          await fetchEntityDetails(id);
+        const {
+          entity: loadedEntity,
+          claims: loadedClaims,
+          entityType: resolvedType,
+        } = await fetchEntityDetails(id);
 
         dispatch({
           type: 'SET_DATA',
@@ -76,9 +88,12 @@ export default function EntityPage() {
             entityType: resolvedType,
           },
         });
-      } catch (err: any) {
-        console.error("Error loading entity:", err);
-        dispatch({ type: 'SET_ERROR', payload: "Error cargando la entidad. Verifique el ID o su conexión." });
+      } catch (err: unknown) {
+        console.error('Error loading entity:', err);
+        dispatch({
+          type: 'SET_ERROR',
+          payload: 'Error cargando la entidad. Verifique el ID o su conexión.',
+        });
       }
     };
 
@@ -92,7 +107,9 @@ export default function EntityPage() {
       <div className="min-h-screen flex items-center justify-center bg-[#f8f9fa]">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="w-12 h-12 animate-spin text-primary-green" />
-          <p className="text-primary-green/60 font-medium">Cargando detalles...</p>
+          <p className="text-primary-green/60 font-medium">
+            Cargando detalles...
+          </p>
         </div>
       </div>
     );
@@ -104,10 +121,10 @@ export default function EntityPage() {
         <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center border border-red-100">
           <h2 className="text-xl font-bold text-red-600 mb-2">Error</h2>
           <p className="text-gray-600 mb-6">
-            {error || "Entidad no encontrada"}
+            {error || 'Entidad no encontrada'}
           </p>
           <a
-            href={buildPath("/")}
+            href={buildPath('/')}
             className="inline-flex items-center justify-center px-6 py-3 bg-primary-green text-white rounded-xl font-bold hover:opacity-90 transition-opacity w-full"
           >
             Volver al inicio
@@ -117,7 +134,11 @@ export default function EntityPage() {
     );
   }
 
-  if (entityType !== "UNKNOWN" && entityType !== "POLITICO" && entityType !== "PERSONA") {
+  if (
+    entityType !== 'UNKNOWN' &&
+    entityType !== 'POLITICO' &&
+    entityType !== 'PERSONA'
+  ) {
     return <EntityRenderer entity={entity} claims={claims} type={entityType} />;
   }
 

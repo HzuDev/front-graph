@@ -1,173 +1,162 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import { buildPath } from "../lib/utils/paths";
-import { Home, Search, Undo2, Globe, Ghost } from "lucide-react";
+import Layout from '../layouts/Layout.astro';
+import { buildPath } from '../lib/utils/paths';
+import { Home, Search, Undo2, Globe, Ghost } from 'lucide-react';
 
-const title = "404 - Ruta no encontrada";
-const description = "La página que buscas no está habilitada en el sistema.";
+const title = '404 - Ruta no encontrada';
+const description = 'La página que buscas no está habilitada en el sistema.';
 ---
 
 <Layout title={title} description={description}>
-    <main
-        class="min-h-screen bg-[#0d1611] flex items-center justify-center p-6 font-sans antialiased overflow-hidden relative"
-    >
-        <div class="fixed inset-0 overflow-hidden pointer-events-none">
-            <div
-                class="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-primary-green rounded-full blur-[120px] opacity-50"
-            >
-            </div>
-            <div
-                class="absolute bottom-[10%] right-[10%] w-[30%] h-[30%] bg-hunter/5 rounded-full blur-[100px]"
-            >
-            </div>
-            <div
-                class="absolute inset-0 opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"
-            >
-            </div>
+  <main
+    class="min-h-screen bg-[#0d1611] flex items-center justify-center p-6 font-sans antialiased overflow-hidden relative"
+  >
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+      <div
+        class="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-primary-green rounded-full blur-[120px] opacity-50"
+      >
+      </div>
+      <div
+        class="absolute bottom-[10%] right-[10%] w-[30%] h-[30%] bg-hunter/5 rounded-full blur-[100px]"
+      >
+      </div>
+      <div
+        class="absolute inset-0 opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"
+      >
+      </div>
+    </div>
+
+    <div class="relative z-10 w-full max-w-3xl text-center">
+      <div class="flex justify-center items-center gap-3 mb-16 opacity-40">
+        <Globe size={20} className="text-hunter" />
+        <span
+          class="text-hunter font-black tracking-widest text-[10px] uppercase"
+          >Monitor Elecciones 2026</span
+        >
+      </div>
+
+      <div class="relative inline-block mb-12">
+        <h1
+          class="text-[12rem] md:text-[16rem] font-black leading-none tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-hunter to-hunter/5 opacity-20"
+        >
+          404
+        </h1>
+        <div class="absolute inset-0 flex items-center justify-center">
+          <div
+            class="p-8 bg-[#1a2c21]/60 backdrop-blur-2xl border border-white/10 rounded-[3rem] shadow-2xl animate-float"
+          >
+            <Ghost size={80} className="text-hunter" strokeWidth={1} />
+          </div>
         </div>
+      </div>
 
-        <div class="relative z-10 w-full max-w-3xl text-center">
-            <div
-                class="flex justify-center items-center gap-3 mb-16 opacity-40"
-            >
-                <Globe size={20} className="text-hunter" />
-                <span
-                    class="text-hunter font-black tracking-widest text-[10px] uppercase"
-                    >Monitor Elecciones 2026</span
-                >
-            </div>
+      <div class="space-y-4 mb-16">
+        <h2 class="text-4xl md:text-5xl font-black text-hunter tracking-tight">
+          Ruta no habilitada
+        </h2>
+        <p
+          class="text-lg md:text-xl text-hunter/50 font-medium max-w-md mx-auto text-pretty"
+        >
+          Lo sentimos, esta sección no existe en nuestro padrón electoral o ha
+          sido movida a una nueva circunscripción.
+        </p>
+      </div>
 
-            <div class="relative inline-block mb-12">
-                <h1
-                    class="text-[12rem] md:text-[16rem] font-black leading-none tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-hunter to-hunter/5 opacity-20"
-                >
-                    404
-                </h1>
-                <div class="absolute inset-0 flex items-center justify-center">
-                    <div
-                        class="p-8 bg-[#1a2c21]/60 backdrop-blur-2xl border border-white/10 rounded-[3rem] shadow-2xl animate-float"
-                    >
-                        <Ghost
-                            size={80}
-                            className="text-hunter"
-                            strokeWidth={1}
-                        />
-                    </div>
-                </div>
-            </div>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <a
+          href={buildPath('/')}
+          class="group w-full sm:w-auto px-10 py-5 bg-hunter text-primary-green rounded-2xl font-bold flex items-center justify-center gap-3 hover:scale-[1.05] transition-all shadow-2xl shadow-black/40"
+        >
+          <Home size={20} />
+          <span>Ir al inicio</span>
+        </a>
 
-            <div class="space-y-4 mb-16">
-                <h2
-                    class="text-4xl md:text-5xl font-black text-hunter tracking-tight"
-                >
-                    Ruta no habilitada
-                </h2>
-                <p
-                    class="text-lg md:text-xl text-hunter/50 font-medium max-w-md mx-auto text-pretty"
-                >
-                    Lo sentimos, esta sección no existe en nuestro padrón
-                    electoral o ha sido movida a una nueva circunscripción.
-                </p>
-            </div>
+        <a
+          href={buildPath('/search')}
+          class="w-full sm:w-auto px-10 py-5 bg-white/5 backdrop-blur-md border border-white/10 text-hunter rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-white/10 transition-all"
+        >
+          <Search size={20} />
+          <span>Búsqueda</span>
+        </a>
 
-            <div
-                class="flex flex-col sm:flex-row gap-4 justify-center items-center"
-            >
-                <a
-                    href={buildPath("/")}
-                    class="group w-full sm:w-auto px-10 py-5 bg-hunter text-primary-green rounded-2xl font-bold flex items-center justify-center gap-3 hover:scale-[1.05] transition-all shadow-2xl shadow-black/40"
-                >
-                    <Home size={20} />
-                    <span>Ir al inicio</span>
-                </a>
+        <button
+          onclick="history.back()"
+          class="w-full sm:w-auto px-8 py-5 text-hunter/40 font-bold hover:text-hunter transition-colors flex items-center justify-center gap-2 group"
+        >
+          <Undo2
+            size={18}
+            className="group-hover:-translate-x-1 transition-transform"
+          />
+          <span>Volver atrás</span>
+        </button>
+      </div>
+    </div>
 
-                <a
-                    href={buildPath("/search")}
-                    class="w-full sm:w-auto px-10 py-5 bg-white/5 backdrop-blur-md border border-white/10 text-hunter rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-white/10 transition-all"
-                >
-                    <Search size={20} />
-                    <span>Búsqueda</span>
-                </a>
-
-                <button
-                    onclick="history.back()"
-                    class="w-full sm:w-auto px-8 py-5 text-hunter/40 font-bold hover:text-hunter transition-colors flex items-center justify-center gap-2 group"
-                >
-                    <Undo2
-                        size={18}
-                        className="group-hover:-translate-x-1 transition-transform"
-                    />
-                    <span>Volver atrás</span>
-                </button>
-            </div>
-        </div>
-
-        <div class="absolute bottom-12 left-0 right-0 text-center opacity-20">
-            <span
-                class="text-[9px] font-black text-hunter uppercase tracking-[0.6em]"
-                >Plataforma Cívica Independiente</span
-            >
-        </div>
-    </main>
+    <div class="absolute bottom-12 left-0 right-0 text-center opacity-20">
+      <span class="text-[9px] font-black text-hunter uppercase tracking-[0.6em]"
+        >Plataforma Cívica Independiente</span
+      >
+    </div>
+  </main>
 </Layout>
 
 <style>
-    h1,
-    h2 {
-        text-wrap: balance;
-    }
+  h1,
+  h2 {
+    text-wrap: balance;
+  }
 
-    .animate-float {
-        animation: floating 6s ease-in-out infinite;
-    }
+  .animate-float {
+    animation: floating 6s ease-in-out infinite;
+  }
 
-    @keyframes floating {
-        0%,
-        100% {
-            transform: translateY(0px) rotate(0deg);
-        }
-        50% {
-            transform: translateY(-20px) rotate(5deg);
-        }
+  @keyframes floating {
+    0%,
+    100% {
+      transform: translateY(0px) rotate(0deg);
     }
+    50% {
+      transform: translateY(-20px) rotate(5deg);
+    }
+  }
 
-    main {
-        animation: fadeIn 0.8s ease-out forwards;
-    }
+  main {
+    animation: fadeIn 0.8s ease-out forwards;
+  }
 
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-        }
-        to {
-            opacity: 1;
-        }
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
     }
+    to {
+      opacity: 1;
+    }
+  }
 </style>
 
 <script>
-    (function () {
-        const basePath = import.meta.env.PUBLIC_BASE_ROUTE ?? "/";
-        const currentPath = window.location.pathname;
-        const currentSearch = window.location.search;
-        const currentHash = window.location.hash;
+  (function () {
+    const basePath = import.meta.env.PUBLIC_BASE_ROUTE ?? '/';
+    const currentPath = window.location.pathname;
+    const currentSearch = window.location.search;
+    const currentHash = window.location.hash;
 
-        const routesWithoutBase = [
-            "/onboarding/",
-            "/search",
-            "/mapa",
-            "/entity",
-            "/test-404",
-            "/test-params",
-        ];
-        const isRouteWithoutBase = routesWithoutBase.some(
-            (route) => currentPath === route || currentPath.startsWith(route)
-        );
+    const routesWithoutBase = [
+      '/onboarding/',
+      '/search',
+      '/mapa',
+      '/entity',
+      '/test-404',
+      '/test-params',
+    ];
+    const isRouteWithoutBase = routesWithoutBase.some(
+      (route) => currentPath === route || currentPath.startsWith(route)
+    );
 
-        if (isRouteWithoutBase && !currentPath.startsWith(basePath)) {
-            const newPath = basePath.replace(/\/$/, "") + currentPath;
-            const newUrl = newPath + currentSearch + currentHash;
-            window.location.replace(newUrl);
-        }
-    })();
+    if (isRouteWithoutBase && !currentPath.startsWith(basePath)) {
+      const newPath = basePath.replace(/\/$/, '') + currentPath;
+      const newUrl = newPath + currentSearch + currentHash;
+      window.location.replace(newUrl);
+    }
+  })();
 </script>

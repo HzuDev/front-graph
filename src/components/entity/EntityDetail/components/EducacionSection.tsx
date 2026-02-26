@@ -1,15 +1,17 @@
-import React from "react";
-import { GraduationCap, ExternalLink } from "lucide-react";
-import { buildPath } from "../../../../lib/utils/paths";
-import type { EducationItem } from "../types";
-import { formatDate } from "../utils/formatters";
-import { isIdLike } from "../utils/claimHelpers";
+import React from 'react';
+import { GraduationCap, ExternalLink } from 'lucide-react';
+import { buildPath } from '../../../../lib/utils/paths';
+import type { EducationItem } from '../types';
+import { formatDate } from '../utils/formatters';
+import { isIdLike } from '../utils/claimHelpers';
 
 interface EducacionSectionProps {
   educacionItems: EducationItem[];
 }
 
-export const EducacionSection: React.FC<EducacionSectionProps> = ({ educacionItems }) => {
+export const EducacionSection: React.FC<EducacionSectionProps> = ({
+  educacionItems,
+}) => {
   return (
     <div className="bg-white p-10 rounded-[4rem] shadow-xl border border-primary-green/5">
       <div className="flex items-center gap-4 mb-10">
@@ -43,7 +45,11 @@ export const EducacionSection: React.FC<EducacionSectionProps> = ({ educacionIte
                     </a>
                   );
                 }
-                return <h4 className="font-black text-sm mb-3 leading-snug">{title}</h4>;
+                return (
+                  <h4 className="font-black text-sm mb-3 leading-snug">
+                    {title}
+                  </h4>
+                );
               })()}
               <div className="flex justify-between items-end">
                 <p className="text-[10px] font-bold opacity-40 uppercase tracking-tighter max-w-30">

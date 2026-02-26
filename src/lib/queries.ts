@@ -5,39 +5,39 @@ export type { Entity, Authority, Claim } from './queries/types';
 export { DEPARTMENT_IDS } from './queries/constants';
 
 // Re-export search functions
-export { 
-    fetchEntities,
-    fetchQuickSearchEntities,
-    fetchEntitiesFiltered,
-    getEntitiesByType,
-    getEntitiesByDepartment
+export {
+  fetchEntities,
+  fetchQuickSearchEntities,
+  fetchEntitiesFiltered,
+  getEntitiesByType,
+  getEntitiesByDepartment,
 } from './queries/search';
 
 // Re-export entity functions
 export {
-    fetchEntityById,
-    getEntityById,
-    getEntityCount,
-    getClaimCount,
-    getPropertyCount,
-    fetchEntityDetails
+  fetchEntityById,
+  getEntityById,
+  getEntityCount,
+  getClaimCount,
+  getPropertyCount,
+  fetchEntityDetails,
 } from './queries/entities';
 
 // Re-export polygon functions
 export {
-    fetchPolygons,
-    findMunicipalityByCoordinates
+  fetchPolygons,
+  findMunicipalityByCoordinates,
 } from './queries/polygons';
 
 // Re-export administrative functions
 export {
-    fetchAdministrativeLevels,
-    searchMunicipalities
+  fetchAdministrativeLevels,
+  searchMunicipalities,
 } from './queries/administrative';
 
 // Re-export authority functions
 export {
-    getAuthoritiesByMunicipality,
-    getAuthoritiesByMunicipalityStreaming,
-    fetchAuthorities
+  getAuthoritiesByMunicipality,
+  getAuthoritiesByMunicipalityStreaming,
+  fetchAuthorities,
 } from './queries/authorities';

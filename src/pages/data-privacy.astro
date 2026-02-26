@@ -1,167 +1,161 @@
 ---
-import Layout from "../layouts/Layout.astro";
+import Layout from '../layouts/Layout.astro';
 import {
-    Eye,
-    ShieldCheck,
-    MapPin,
-    Globe,
-    Info,
-    ArrowLeft,
-    Mail,
-    Lock,
-    Database,
-    Camera,
-} from "lucide-react";
-import { buildPath } from "../lib/utils/paths";
+  Eye,
+  MapPin,
+  Globe,
+  Info,
+  ArrowLeft,
+  Lock,
+  Database,
+  Camera,
+} from 'lucide-react';
+import { buildPath } from '../lib/utils/paths';
 
 const sections = [
-    {
-        icon: Database,
-        title: "Origen y Naturaleza de los Datos",
-        content:
-            "Monitor 2026 es un visualizador de datos de interés público. La información sobre candidatos, partidos e instituciones proviene estrictamente de registros oficiales del Órgano Electoral Plurinacional (OEP) y fuentes de acceso público. No generamos información propia, sino que procesamos registros existentes para facilitar la auditoría ciudadana.",
-    },
-    {
-        icon: Camera,
-        title: "Uso de Material Visual",
-        content:
-            "Las fotografías de los candidatos y logotipos institucionales se obtienen de perfiles públicos en redes sociales y registros oficiales de candidaturas. Este material se utiliza exclusivamente con fines informativos y de identificación en el marco del proceso electoral boliviano.",
-    },
-    {
-        icon: Lock,
-        title: "Sin Registro de Usuarios",
-        content:
-            "Para garantizar el anonimato total del ciudadano, Monitor 2026 no permite ni requiere la creación de cuentas de usuario. No almacenamos nombres, correos electrónicos personales ni contraseñas. La consulta es libre, abierta y sin rastreo de identidad personal.",
-    },
-    {
-        icon: MapPin,
-        title: "Servicios de Ubicación",
-        content:
-            "La plataforma ofrece una función de búsqueda por proximidad. El acceso a tu ubicación vía GPS es estrictamente opcional y requiere tu permiso explícito en el navegador. Si prefieres no compartir esta información, puedes realizar todas las consultas de forma manual seleccionando tu municipio o departamento.",
-    },
-    {
-        icon: Globe,
-        title: "Analíticas y Alojamiento",
-        content:
-            "Este sitio se aloja en GitHub Pages. Utilizamos Google Analytics para obtener métricas anónimas (como el número de visitas y las secciones más consultadas). Estos datos no nos permiten identificarte personalmente y se utilizan únicamente para medir el impacto social del proyecto y optimizar su rendimiento técnico.",
-    },
-    {
-        icon: Info,
-        title: "Compromiso de Transparencia",
-        content:
-            "Al ser un proyecto impulsado por la Sociedad Científica de Estadística (SOCIEST) y la Fundación ARU, aplicamos criterios de rigor científico en el manejo de la base de conocimientos. Si detectas alguna inconsistencia en los datos públicos visualizados, puedes contactarnos para su revisión.",
-    },
+  {
+    icon: Database,
+    title: 'Origen y Naturaleza de los Datos',
+    content:
+      'Monitor 2026 es un visualizador de datos de interés público. La información sobre candidatos, partidos e instituciones proviene estrictamente de registros oficiales del Órgano Electoral Plurinacional (OEP) y fuentes de acceso público. No generamos información propia, sino que procesamos registros existentes para facilitar la auditoría ciudadana.',
+  },
+  {
+    icon: Camera,
+    title: 'Uso de Material Visual',
+    content:
+      'Las fotografías de los candidatos y logotipos institucionales se obtienen de perfiles públicos en redes sociales y registros oficiales de candidaturas. Este material se utiliza exclusivamente con fines informativos y de identificación en el marco del proceso electoral boliviano.',
+  },
+  {
+    icon: Lock,
+    title: 'Sin Registro de Usuarios',
+    content:
+      'Para garantizar el anonimato total del ciudadano, Monitor 2026 no permite ni requiere la creación de cuentas de usuario. No almacenamos nombres, correos electrónicos personales ni contraseñas. La consulta es libre, abierta y sin rastreo de identidad personal.',
+  },
+  {
+    icon: MapPin,
+    title: 'Servicios de Ubicación',
+    content:
+      'La plataforma ofrece una función de búsqueda por proximidad. El acceso a tu ubicación vía GPS es estrictamente opcional y requiere tu permiso explícito en el navegador. Si prefieres no compartir esta información, puedes realizar todas las consultas de forma manual seleccionando tu municipio o departamento.',
+  },
+  {
+    icon: Globe,
+    title: 'Analíticas y Alojamiento',
+    content:
+      'Este sitio se aloja en GitHub Pages. Utilizamos Google Analytics para obtener métricas anónimas (como el número de visitas y las secciones más consultadas). Estos datos no nos permiten identificarte personalmente y se utilizan únicamente para medir el impacto social del proyecto y optimizar su rendimiento técnico.',
+  },
+  {
+    icon: Info,
+    title: 'Compromiso de Transparencia',
+    content:
+      'Al ser un proyecto impulsado por la Sociedad Científica de Estadística (SOCIEST) y la Fundación ARU, aplicamos criterios de rigor científico en el manejo de la base de conocimientos. Si detectas alguna inconsistencia en los datos públicos visualizados, puedes contactarnos para su revisión.',
+  },
 ];
 ---
 
 <Layout title="Privacidad de Datos | Monitor 2026">
-    <main
-        class="min-h-screen bg-neutral-white text-primary-green antialiased pb-24"
-    >
-        <section
-            class="bg-primary-green pt-32 pb-20 px-6 relative overflow-hidden"
+  <main
+    class="min-h-screen bg-neutral-white text-primary-green antialiased pb-24"
+  >
+    <section class="bg-primary-green pt-32 pb-20 px-6 relative overflow-hidden">
+      <div
+        class="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"
+      >
+      </div>
+
+      <div class="max-w-4xl mx-auto relative z-10 text-center">
+        <a
+          href={buildPath('/')}
+          class="inline-flex items-center gap-2 text-hunter/40 hover:text-hunter transition-colors mb-12 text-[10px] font-black uppercase tracking-widest group"
         >
-            <div
-                class="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"
-            >
-            </div>
+          <ArrowLeft
+            size={14}
+            className="group-hover:-translate-x-1 transition-transform"
+          />
+          Volver al inicio
+        </a>
 
-            <div class="max-w-4xl mx-auto relative z-10 text-center">
-                <a
-                    href={buildPath("/")}
-                    class="inline-flex items-center gap-2 text-hunter/40 hover:text-hunter transition-colors mb-12 text-[10px] font-black uppercase tracking-widest group"
-                >
-                    <ArrowLeft
-                        size={14}
-                        className="group-hover:-translate-x-1 transition-transform"
-                    />
-                    Volver al inicio
-                </a>
-
-                <div class="flex flex-col items-center gap-6">
-                    <div
-                        class="w-16 h-16 bg-hunter rounded-2xl flex items-center justify-center text-primary-green shadow-2xl rotate-3"
-                    >
-                        <Eye size={32} strokeWidth={2.5} />
-                    </div>
-                    <h1
-                        class="text-5xl md:text-7xl font-black text-hunter tracking-tighter leading-none italic"
-                    >
-                        Privacidad de Datos
-                    </h1>
-                    <p
-                        class="text-xl text-hunter/50 font-medium max-w-xl mx-auto leading-relaxed"
-                    >
-                        Compromiso ético sobre el manejo de la información
-                        pública y técnica en Monitor 2026.
-                    </p>
-                </div>
-            </div>
-        </section>
-
-        <div class="max-w-4xl mx-auto px-6 -mt-10 relative z-20">
-            <div
-                class="bg-white p-12 md:p-20 rounded-[4rem] shadow-2xl shadow-primary-green/5 border border-primary-green/5 space-y-20"
-            >
-                {
-                    sections.map((sec, index) => (
-                        <div class="group">
-                            <div class="flex items-start gap-8">
-                                <div class="flex flex-col items-center">
-                                    <span class="text-xs font-black opacity-10 mb-4">
-                                        0{index + 1}
-                                    </span>
-                                    <div class="p-4 bg-primary-green/5 rounded-2xl text-primary-green group-hover:bg-primary-green group-hover:text-hunter transition-all duration-500">
-                                        <sec.icon size={24} />
-                                    </div>
-                                </div>
-                                <div class="space-y-4">
-                                    <h3 class="text-2xl font-black tracking-tight">
-                                        {sec.title}
-                                    </h3>
-                                    <p class="text-lg text-primary-green/60 leading-relaxed font-medium text-pretty">
-                                        {sec.content}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    ))
-                }
-
-                <div class="pt-16 border-t border-primary-green/5 text-center">
-                    <p
-                        class="text-[10px] font-black uppercase tracking-[0.4em] opacity-30 mb-8 text-pretty"
-                    >
-                        Canal oficial de transparencia
-                    </p>
-                    <div
-                        class="inline-flex flex-col md:flex-row items-center gap-4 bg-hunter p-2 rounded-[2rem] border border-primary-green/10"
-                    >
-                        <div
-                            class="px-8 py-4 text-sm font-black text-primary-green"
-                        >
-                            elecciones@sociest.org
-                        </div>
-                        <a
-                            href="mailto:elecciones@sociest.org"
-                            class="px-8 py-4 bg-primary-green text-hunter rounded-[1.5rem] font-black text-xs uppercase tracking-widest hover:scale-[1.03] active:scale-95 transition-all"
-                        >
-                            Enviar Correo
-                        </a>
-                    </div>
-                </div>
-            </div>
+        <div class="flex flex-col items-center gap-6">
+          <div
+            class="w-16 h-16 bg-hunter rounded-2xl flex items-center justify-center text-primary-green shadow-2xl rotate-3"
+          >
+            <Eye size={32} strokeWidth={2.5} />
+          </div>
+          <h1
+            class="text-5xl md:text-7xl font-black text-hunter tracking-tighter leading-none italic"
+          >
+            Privacidad de Datos
+          </h1>
+          <p
+            class="text-xl text-hunter/50 font-medium max-w-xl mx-auto leading-relaxed"
+          >
+            Compromiso ético sobre el manejo de la información pública y técnica
+            en Monitor 2026.
+          </p>
         </div>
-    </main>
+      </div>
+    </section>
+
+    <div class="max-w-4xl mx-auto px-6 -mt-10 relative z-20">
+      <div
+        class="bg-white p-12 md:p-20 rounded-[4rem] shadow-2xl shadow-primary-green/5 border border-primary-green/5 space-y-20"
+      >
+        {
+          sections.map((sec, index) => (
+            <div class="group">
+              <div class="flex items-start gap-8">
+                <div class="flex flex-col items-center">
+                  <span class="text-xs font-black opacity-10 mb-4">
+                    0{index + 1}
+                  </span>
+                  <div class="p-4 bg-primary-green/5 rounded-2xl text-primary-green group-hover:bg-primary-green group-hover:text-hunter transition-all duration-500">
+                    <sec.icon size={24} />
+                  </div>
+                </div>
+                <div class="space-y-4">
+                  <h3 class="text-2xl font-black tracking-tight">
+                    {sec.title}
+                  </h3>
+                  <p class="text-lg text-primary-green/60 leading-relaxed font-medium text-pretty">
+                    {sec.content}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))
+        }
+
+        <div class="pt-16 border-t border-primary-green/5 text-center">
+          <p
+            class="text-[10px] font-black uppercase tracking-[0.4em] opacity-30 mb-8 text-pretty"
+          >
+            Canal oficial de transparencia
+          </p>
+          <div
+            class="inline-flex flex-col md:flex-row items-center gap-4 bg-hunter p-2 rounded-[2rem] border border-primary-green/10"
+          >
+            <div class="px-8 py-4 text-sm font-black text-primary-green">
+              elecciones@sociest.org
+            </div>
+            <a
+              href="mailto:elecciones@sociest.org"
+              class="px-8 py-4 bg-primary-green text-hunter rounded-[1.5rem] font-black text-xs uppercase tracking-widest hover:scale-[1.03] active:scale-95 transition-all"
+            >
+              Enviar Correo
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
 </Layout>
 
 <style>
-    main {
-        -webkit-font-smoothing: antialiased;
-        text-rendering: optimizeLegibility;
-    }
-    h1,
-    h3 {
-        text-wrap: balance;
-    }
+  main {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  h1,
+  h3 {
+    text-wrap: balance;
+  }
 </style>

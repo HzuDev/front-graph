@@ -1,6 +1,6 @@
-import { useCallback, useRef, useState } from "react";
-import { fetchQuickSearchEntities, type Entity } from "../../../../lib/queries";
-import { SEARCH_DEBOUNCE_MS } from "../constants";
+import { useCallback, useRef, useState } from 'react';
+import { fetchQuickSearchEntities, type Entity } from '../../../../lib/queries';
+import { SEARCH_DEBOUNCE_MS } from '../constants';
 
 /**
  * Hook to manage entity search functionality with debouncing
@@ -35,7 +35,7 @@ import { SEARCH_DEBOUNCE_MS } from "../constants";
  * {isOpen && results.map(entity => <ResultItem key={entity.$id} entity={entity} />)}
  */
 export const useSearch = () => {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
   const [results, setResults] = useState<Entity[]>([]);
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -43,9 +43,9 @@ export const useSearch = () => {
 
   const handleSearch = useCallback(
     (value: string, onSearch?: (query: string) => void) => {
-      console.log("useSearch: handleSearch called with value:", value);
+      console.log('useSearch: handleSearch called with value:', value);
       setQuery(value);
-      console.log("useSearch: query state will be updated to:", value);
+      console.log('useSearch: query state will be updated to:', value);
 
       if (searchTimeout.current) {
         clearTimeout(searchTimeout.current);
@@ -54,7 +54,7 @@ export const useSearch = () => {
       if (value.trim().length === 0) {
         setResults([]);
         setIsOpen(false);
-        if (onSearch) onSearch("");
+        if (onSearch) onSearch('');
         return;
       }
 
@@ -63,28 +63,30 @@ export const useSearch = () => {
 
       searchTimeout.current = setTimeout(async () => {
         try {
-          const response = await fetchQuickSearchEntities({ search: value, limit: 5 });
+          const response = await fetchQuickSearchEntities({
+            search: value,
+            limit: 5,
+          });
           setResults(response.documents);
           if (onSearch) onSearch(value);
         } catch (error) {
-          console.error("Search error:", error);
+          console.error('Search error:', error);
           setResults([]);
         } finally {
           setLoading(false);
         }
       }, SEARCH_DEBOUNCE_MS);
     },
-    [],
+    []
   );
 
   const clearSearch = useCallback((onSearch?: (query: string) => void) => {
-    console.log("useSearch: clearSearch called");
-    setQuery("");
+    console.log('useSearch: clearSearch called');
+    setQuery('');
     setResults([]);
     setIsOpen(false);
-    if (onSearch) onSearch("");
+    if (onSearch) onSearch('');
   }, []);
-
 
   return {
     query,
