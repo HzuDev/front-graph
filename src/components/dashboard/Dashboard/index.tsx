@@ -83,13 +83,13 @@ const EntityDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-neutral-white text-primary-green selection:bg-primary-green selection:text-hunter antialiased">
       {/* MAIN CONTENT */}
-      <div className="max-w-7xl mx-auto pt-32 px-6 pb-20">
+      <div className="max-w-7xl mx-auto pt-12 px-6 pb-20">
         <header className="mb-16">
           <div className="max-w-3xl">
-            <h2 className="text-5xl md:text-7xl font-black tracking-[ -0.05em] leading-[0.85] mb-8">
-              Conoce a tus <br />
+            <h2 className="text-5xl md:text-7xl font-black tracking-[-0.05em] leading-[0.85] mb-8">
+              Conoce a tus futuros<br />
               <span className="text-transparent bg-clip-text bg-linear-to-r from-primary-green to-primary-green/40">
-                Candidatos.
+                Gobernantes.
               </span>
             </h2>
 
@@ -116,11 +116,10 @@ const EntityDashboard: React.FC = () => {
                     setSelectedFilter(filtro);
                     setCurrentPage(1);
                   }}
-                  className={`px-5 py-2 rounded-full border text-[11px] font-black uppercase tracking-widest transition-all ${
-                    selectedFilter === filtro
-                      ? 'bg-primary-green text-hunter border-primary-green'
-                      : 'bg-transparent border-primary-green/10 text-primary-green hover:bg-primary-green hover:text-hunter'
-                  }`}
+                  className={`px-5 py-2 rounded-full border text-[11px] font-black uppercase tracking-widest transition-all ${selectedFilter === filtro
+                    ? 'bg-primary-green text-hunter border-primary-green'
+                    : 'bg-transparent border-primary-green/10 text-primary-green hover:bg-primary-green hover:text-hunter'
+                    }`}
                 >
                   {filtro}
                 </button>
