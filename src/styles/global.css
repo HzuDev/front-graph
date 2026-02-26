@@ -1,20 +1,18 @@
-@import "tailwindcss";
-@import "@fontsource-variable/sora";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
+@import 'tailwindcss';
+@import '@fontsource-variable/sora';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
 
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-sans: "Sora Variable", system-ui, sans-serif;
+  --font-sans: 'Sora Variable', system-ui, sans-serif;
 
   /* Brand Colors */
   --color-hunter: #fffcdc;
   --color-primary-green: #14281d;
   --color-soft-green: #1e3a2b;
   --color-neutral-white: #fcfcfc;
-
-  
 
   /* Semantic Mappings */
   --color-brand: var(--color-primary-green);

@@ -1,174 +1,169 @@
 ---
-import Layout from "../layouts/Layout.astro";
+import Layout from '../layouts/Layout.astro';
 import {
-    Scale,
-    ShieldAlert,
-    FileText,
-    Copyright,
-    ExternalLink,
-    ArrowLeft,
-    Handshake,
-    Zap,
-    Landmark,
-    Award,
-} from "lucide-react";
-import { buildPath } from "../lib/utils/paths";
+  Scale,
+  ShieldAlert,
+  FileText,
+  Copyright,
+  ArrowLeft,
+  Handshake,
+  Zap,
+  Landmark,
+  Award,
+} from 'lucide-react';
+import { buildPath } from '../lib/utils/paths';
 
 const sections = [
-    {
-        icon: Landmark,
-        title: "Naturaleza del Proyecto",
-        content:
-            "Monitor 2026 es una iniciativa de carácter académico y científico impulsada por la Sociedad Científica de Estadística (SOCIEST) de la UMSA y la Fundación ARU. Su objetivo es facilitar el acceso a la información pública mediante herramientas de visualización de datos, no teniendo vinculación partidaria alguna.",
-    },
-    {
-        icon: ShieldAlert,
-        title: "Exención de Responsabilidad",
-        content:
-            "La información visualizada proviene de fuentes externas como el Órgano Electoral Plurinacional (OEP) y perfiles públicos en redes sociales. Monitor 2026 no se hace responsable por la exactitud, integridad o vigencia de dichos datos si estos son modificados por la fuente original. Las decisiones tomadas basadas en esta información son responsabilidad exclusiva del usuario.",
-    },
-    {
-        icon: Copyright,
-        title: "Uso de los Datos y Atribución",
-        content:
-            "Los datos procesados por esta plataforma son de libre consulta para fines informativos, periodísticos o de investigación. Cualquier redistribución de la información aquí contenida debe citar obligatoriamente a 'Monitor 2026: SOCIEST UMSA y Fundación ARU' como fuente de procesamiento de datos.",
-    },
-    {
-        icon: Zap,
-        title: "Prohibiciones de Uso",
-        content:
-            "Queda estrictamente prohibido el uso de técnicas de recolección automática de datos (scraping) que comprometan la estabilidad de los servidores en GitHub Pages, así como el uso de la interfaz para suplantar la identidad oficial de organismos electorales.",
-    },
-    {
-        icon: Handshake,
-        title: "Propiedad de Terceros",
-        content:
-            "Los logotipos de partidos políticos, símbolos institucionales y fotografías de candidatos son propiedad de sus respectivos dueños y están protegidos por las leyes de propiedad intelectual vigentes. Su aparición en este monitor tiene un fin estrictamente informativo y de interés social.",
-    },
-    {
-        icon: FileText,
-        title: "Modificaciones del Servicio",
-        content:
-            "Monitor 2026 se reserva el derecho de actualizar, modificar o suspender temporalmente el acceso a los datos sin previo aviso, con el fin de realizar ajustes metodológicos o actualizaciones de infraestructura técnica.",
-    },
+  {
+    icon: Landmark,
+    title: 'Naturaleza del Proyecto',
+    content:
+      'Monitor 2026 es una iniciativa de carácter académico y científico impulsada por la Sociedad Científica de Estadística (SOCIEST) de la UMSA y la Fundación ARU. Su objetivo es facilitar el acceso a la información pública mediante herramientas de visualización de datos, no teniendo vinculación partidaria alguna.',
+  },
+  {
+    icon: ShieldAlert,
+    title: 'Exención de Responsabilidad',
+    content:
+      'La información visualizada proviene de fuentes externas como el Órgano Electoral Plurinacional (OEP) y perfiles públicos en redes sociales. Monitor 2026 no se hace responsable por la exactitud, integridad o vigencia de dichos datos si estos son modificados por la fuente original. Las decisiones tomadas basadas en esta información son responsabilidad exclusiva del usuario.',
+  },
+  {
+    icon: Copyright,
+    title: 'Uso de los Datos y Atribución',
+    content:
+      "Los datos procesados por esta plataforma son de libre consulta para fines informativos, periodísticos o de investigación. Cualquier redistribución de la información aquí contenida debe citar obligatoriamente a 'Monitor 2026: SOCIEST UMSA y Fundación ARU' como fuente de procesamiento de datos.",
+  },
+  {
+    icon: Zap,
+    title: 'Prohibiciones de Uso',
+    content:
+      'Queda estrictamente prohibido el uso de técnicas de recolección automática de datos (scraping) que comprometan la estabilidad de los servidores en GitHub Pages, así como el uso de la interfaz para suplantar la identidad oficial de organismos electorales.',
+  },
+  {
+    icon: Handshake,
+    title: 'Propiedad de Terceros',
+    content:
+      'Los logotipos de partidos políticos, símbolos institucionales y fotografías de candidatos son propiedad de sus respectivos dueños y están protegidos por las leyes de propiedad intelectual vigentes. Su aparición en este monitor tiene un fin estrictamente informativo y de interés social.',
+  },
+  {
+    icon: FileText,
+    title: 'Modificaciones del Servicio',
+    content:
+      'Monitor 2026 se reserva el derecho de actualizar, modificar o suspender temporalmente el acceso a los datos sin previo aviso, con el fin de realizar ajustes metodológicos o actualizaciones de infraestructura técnica.',
+  },
 ];
 ---
 
 <Layout title="Términos de Uso | Monitor 2026">
-    <main
-        class="min-h-screen bg-neutral-white text-primary-green font-sans antialiased pb-24"
-    >
-        <section class="bg-primary-green pt-32 pb-20 px-6 relative overflow-hidden">
-            <div
-                class="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"
-            >
-            </div>
+  <main
+    class="min-h-screen bg-neutral-white text-primary-green font-sans antialiased pb-24"
+  >
+    <section class="bg-primary-green pt-32 pb-20 px-6 relative overflow-hidden">
+      <div
+        class="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"
+      >
+      </div>
 
-            <div class="max-w-4xl mx-auto relative z-10 text-center">
-                <a
-                    href={buildPath("/")}
-                    class="inline-flex items-center gap-2 text-hunter/40 hover:text-hunter transition-colors mb-12 text-[10px] font-black uppercase tracking-widest group"
-                >
-                    <ArrowLeft
-                        size={14}
-                        className="group-hover:-translate-x-1 transition-transform"
-                    />
-                    Volver al inicio
-                </a>
+      <div class="max-w-4xl mx-auto relative z-10 text-center">
+        <a
+          href={buildPath('/')}
+          class="inline-flex items-center gap-2 text-hunter/40 hover:text-hunter transition-colors mb-12 text-[10px] font-black uppercase tracking-widest group"
+        >
+          <ArrowLeft
+            size={14}
+            className="group-hover:-translate-x-1 transition-transform"
+          />
+          Volver al inicio
+        </a>
 
-                <div class="flex flex-col items-center gap-6">
-                    <div
-                        class="w-16 h-16 bg-hunter rounded-2xl flex items-center justify-center text-primary-green shadow-2xl rotate-3"
-                    >
-                        <Scale size={32} strokeWidth={2.5} />
-                    </div>
-                    <h1
-                        class="text-5xl md:text-7xl font-black text-hunter tracking-tighter leading-none italic"
-                    >
-                        Términos de Uso
-                    </h1>
-                    <p
-                        class="text-xl text-hunter/50 font-medium max-w-xl mx-auto leading-relaxed text-pretty"
-                    >
-                        Condiciones y límites de responsabilidad para el uso de
-                        la base de conocimientos pública.
-                    </p>
-                </div>
-            </div>
-        </section>
-
-        <div class="max-w-4xl mx-auto px-6 -mt-10 relative z-20">
-            <div
-                class="bg-white p-12 md:p-20 rounded-[4rem] shadow-2xl shadow-primary-green/5 border border-primary-green/5 space-y-20"
-            >
-                {
-                    sections.map((sec, index) => (
-                        <div class="group">
-                            <div class="flex flex-col md:flex-row items-start gap-8">
-                                <div class="flex flex-col items-center shrink-0">
-                                    <span class="text-xs font-black opacity-10 mb-4 tracking-widest">
-                                        ART. 0{index + 1}
-                                    </span>
-                                    <div class="p-4 bg-primary-green/5 rounded-2xl text-primary-green group-hover:bg-primary-green group-hover:text-hunter transition-all duration-500">
-                                        <sec.icon size={24} />
-                                    </div>
-                                </div>
-                                <div class="space-y-4">
-                                    <h3 class="text-2xl font-black tracking-tight">
-                                        {sec.title}
-                                    </h3>
-                                    <p class="text-lg text-primary-green/60 leading-relaxed font-medium text-pretty">
-                                        {sec.content}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    ))
-                }
-
-                <div
-                    class="pt-16 border-t border-primary-green/5 flex flex-col md:flex-row items-center justify-between gap-12"
-                >
-                    <div class="text-center md:text-left">
-                        <p
-                            class="text-[10px] font-black uppercase tracking-[0.4em] opacity-30 mb-4"
-                        >
-                            Soporte Institucional
-                        </p>
-                        <div
-                            class="flex items-center gap-8 grayscale opacity-50"
-                        >
-                            <div
-                                class="h-8 w-auto border-r border-primary-green/10 pr-8"
-                            >
-                                <Landmark size={32} />
-                            </div>
-                            <div class="h-8 w-auto">
-                                <Award size={32} />
-                            </div>
-                        </div>
-                    </div>
-                    <div class="max-w-[250px] text-center md:text-right">
-                        <p
-                            class="text-[10px] font-black leading-relaxed opacity-40 uppercase tracking-tighter"
-                        >
-                            Este documento rige el uso de Monitor 2026 a partir
-                            del 22 de Febrero, 2026.
-                        </p>
-                    </div>
-                </div>
-            </div>
+        <div class="flex flex-col items-center gap-6">
+          <div
+            class="w-16 h-16 bg-hunter rounded-2xl flex items-center justify-center text-primary-green shadow-2xl rotate-3"
+          >
+            <Scale size={32} strokeWidth={2.5} />
+          </div>
+          <h1
+            class="text-5xl md:text-7xl font-black text-hunter tracking-tighter leading-none italic"
+          >
+            Términos de Uso
+          </h1>
+          <p
+            class="text-xl text-hunter/50 font-medium max-w-xl mx-auto leading-relaxed text-pretty"
+          >
+            Condiciones y límites de responsabilidad para el uso de la base de
+            conocimientos pública.
+          </p>
         </div>
-    </main>
+      </div>
+    </section>
+
+    <div class="max-w-4xl mx-auto px-6 -mt-10 relative z-20">
+      <div
+        class="bg-white p-12 md:p-20 rounded-[4rem] shadow-2xl shadow-primary-green/5 border border-primary-green/5 space-y-20"
+      >
+        {
+          sections.map((sec, index) => (
+            <div class="group">
+              <div class="flex flex-col md:flex-row items-start gap-8">
+                <div class="flex flex-col items-center shrink-0">
+                  <span class="text-xs font-black opacity-10 mb-4 tracking-widest">
+                    ART. 0{index + 1}
+                  </span>
+                  <div class="p-4 bg-primary-green/5 rounded-2xl text-primary-green group-hover:bg-primary-green group-hover:text-hunter transition-all duration-500">
+                    <sec.icon size={24} />
+                  </div>
+                </div>
+                <div class="space-y-4">
+                  <h3 class="text-2xl font-black tracking-tight">
+                    {sec.title}
+                  </h3>
+                  <p class="text-lg text-primary-green/60 leading-relaxed font-medium text-pretty">
+                    {sec.content}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))
+        }
+
+        <div
+          class="pt-16 border-t border-primary-green/5 flex flex-col md:flex-row items-center justify-between gap-12"
+        >
+          <div class="text-center md:text-left">
+            <p
+              class="text-[10px] font-black uppercase tracking-[0.4em] opacity-30 mb-4"
+            >
+              Soporte Institucional
+            </p>
+            <div class="flex items-center gap-8 grayscale opacity-50">
+              <div class="h-8 w-auto border-r border-primary-green/10 pr-8">
+                <Landmark size={32} />
+              </div>
+              <div class="h-8 w-auto">
+                <Award size={32} />
+              </div>
+            </div>
+          </div>
+          <div class="max-w-[250px] text-center md:text-right">
+            <p
+              class="text-[10px] font-black leading-relaxed opacity-40 uppercase tracking-tighter"
+            >
+              Este documento rige el uso de Monitor 2026 a partir del 22 de
+              Febrero, 2026.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
 </Layout>
 
 <style>
-    main {
-        -webkit-font-smoothing: antialiased;
-        text-rendering: optimizeLegibility;
-    }
-    h1,
-    h3 {
-        text-wrap: balance;
-    }
+  main {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  h1,
+  h3 {
+    text-wrap: balance;
+  }
 </style>

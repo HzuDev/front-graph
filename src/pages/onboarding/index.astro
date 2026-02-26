@@ -1,3 +1,4 @@
 ---
-return Astro.redirect("/onboarding/1");
+import { buildPath } from '../../lib/utils/paths';
+return Astro.redirect(buildPath('/onboarding/1'));
 ---

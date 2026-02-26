@@ -26,7 +26,6 @@ export const PROPERTY_IDS = {
   PORCENTAJE: '698cac4104ba13afd2c0',
   FECHA_PUBLICACION: '699ddf64a6cc230024bb',
   ARCHIVO: '6985e9c7598e2f77b9d3',
-
 } as const;
 
 export const COLLECTION_IDS = {

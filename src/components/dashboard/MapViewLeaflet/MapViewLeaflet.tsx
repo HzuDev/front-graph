@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
+import React, { useState, useEffect, useMemo, memo } from 'react';
 import { MapContainer, TileLayer, GeoJSON, Marker, Popup, useMap } from 'react-leaflet';
 import type { LatLngExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -26,8 +26,8 @@ import { useMapGeometry } from './hooks/useMapGeometry';
 import { useUserLocationDetection } from './hooks/useUserLocationDetection';
 import { useMapStyling } from './hooks/useMapStyling';
 import { useMapEventHandlers } from './hooks/useMapEventHandlers';
-import { loadUserLocationFromStorage, pointInPolygon, saveMunicipalityToStorage } from './utils/geomHelpers';
-import { LEVEL_NAMES, LEVEL_COLORS } from './constants';
+import { pointInPolygon, saveMunicipalityToStorage } from './utils/geomHelpers';
+import { LEVEL_NAMES } from './constants';
 import MapController from './components/MapController';
 import type { MapViewProps } from './types';
 
@@ -77,6 +77,7 @@ const MapViewLeaflet: React.FC<MapViewProps> = ({ onMunicipalitySelect, selected
             });
 
             if (detected) {
+                // eslint-disable-next-line react-hooks/set-state-in-effect
                 setSelectionState(prev => ({
                     ...prev,
                     userDetectedFeatureId: detected.properties.id,
@@ -108,7 +109,7 @@ const MapViewLeaflet: React.FC<MapViewProps> = ({ onMunicipalitySelect, selected
         }
     }, [userLocation, geoJsonData, userDetectedFeatureId, onMunicipalitySelect]);
 
-    const syncedSelectedFeatureId = selectedEntityId || selectedFeatureId;
+
 
     const { center, zoom } = useMemo<{ center: LatLngExpression; zoom: number }>(() => {
         if (userLocation) {
@@ -159,6 +160,7 @@ const MapViewLeaflet: React.FC<MapViewProps> = ({ onMunicipalitySelect, selected
                     <GeoJSON
                         key="municipal-polygons"
                         data={geoJsonData}
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         style={(feature) => getFeatureStyle(feature as any)}
                         onEachFeature={onEachFeature}
                     />

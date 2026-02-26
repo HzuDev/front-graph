@@ -1,11 +1,10 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import SearchPage from "../components/search/SearchPage";
-
+import Layout from '../layouts/Layout.astro';
+import SearchPage from '../components/search/SearchPage';
 ---
 
 <Layout title="Búsqueda de Entidades">
-    <div class="min-h-screen bg-neutral-white">
-        <SearchPage client:only="react" />
-    </div>
+  <div class="min-h-screen bg-neutral-white">
+    <SearchPage client:only="react" />
+  </div>
 </Layout>
