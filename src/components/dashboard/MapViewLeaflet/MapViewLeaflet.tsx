@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useMemo, memo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { MapContainer, TileLayer, GeoJSON, Marker, Popup, useMap } from 'react-leaflet';
 import type { LatLngExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { MapPin } from 'lucide-react';
+import { MapPin, RotateCcw } from 'lucide-react';
 import L from 'leaflet';
 import iconUrl from 'leaflet/dist/images/marker-icon.png?url';
 import iconShadowUrl from 'leaflet/dist/images/marker-shadow.png?url';
@@ -44,7 +44,7 @@ function MapResizer() {
     return null;
 }
 
-const MapViewLeaflet: React.FC<MapViewProps> = ({ onMunicipalitySelect, selectedEntityId }) => {
+const MapViewLeaflet: React.FC<MapViewProps> = ({ onMunicipalitySelect, onMapReset, selectedEntityId }) => {
     const [selectionState, setSelectionState] = useState<{
         selectedFeatureId: string | null;
         userDetectedFeatureId: string | null;
@@ -93,7 +93,7 @@ const MapViewLeaflet: React.FC<MapViewProps> = ({ onMunicipalitySelect, selected
                         department: detected.properties.department,
                         entityId: detected.properties.id,
                         hasEntity: detected.properties.hasEntity,
-                    });
+                    }, true);
                 }
 
                 saveMunicipalityToStorage(() => {
@@ -110,13 +110,31 @@ const MapViewLeaflet: React.FC<MapViewProps> = ({ onMunicipalitySelect, selected
     }, [userLocation, geoJsonData, userDetectedFeatureId, onMunicipalitySelect]);
 
 
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setSelectionState(prev => ({
+            ...prev,
+            selectedFeatureId: selectedEntityId || null
+        }));
+    }, [selectedEntityId]);
+
+    const handleResetMap = useCallback(() => {
+        setSelectionState(prev => ({ ...prev, selectedFeatureId: null }));
+        if (onMapReset) {
+            onMapReset();
+        } else if (onMunicipalitySelect) {
+            onMunicipalitySelect({
+                name: '',
+                department: '',
+                entityId: ''
+            }, true);
+        }
+    }, [onMunicipalitySelect, onMapReset]);
 
     const { center, zoom } = useMemo<{ center: LatLngExpression; zoom: number }>(() => {
-        if (userLocation) {
-            return { center: [userLocation.lat, userLocation.lon], zoom: 10 };
-        }
+        // Siempre mostrar mapa completo de Bolivia por defecto según requerimiento
         return { center: [-16.5, -64.5], zoom: 5.5 };
-    }, [userLocation]);
+    }, []);
 
     if (loading || !ready) {
         return (
@@ -183,12 +201,21 @@ const MapViewLeaflet: React.FC<MapViewProps> = ({ onMunicipalitySelect, selected
                 )}
 
                 <MapController
-                    userLocation={userLocation}
                     selectedFeatureId={selectedFeatureId}
-                    userDetectedFeatureId={userDetectedFeatureId}
                     features={geoJsonData.features}
                 />
             </MapContainer>
+
+            {/* Botón Reiniciar Mapa */}
+            <div className="absolute top-4 right-4 z-1000">
+                <button
+                    onClick={handleResetMap}
+                    className="flex items-center gap-2 px-4 py-2 bg-emerald-700/90 text-white rounded-xl shadow-lg hover:bg-emerald-600 transition-colors backdrop-blur-md border border-white/10 text-xs font-bold"
+                >
+                    <RotateCcw size={16} />
+                    <span>Bolivia</span>
+                </button>
+            </div>
 
             {/* User Location Banner */}
             {userLocation && userDetectedFeatureName && (
