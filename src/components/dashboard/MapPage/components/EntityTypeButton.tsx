@@ -23,10 +23,11 @@ const EntityTypeButton = memo(
     return (
       <button
         onClick={onSelect}
-        className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition-all ${isSelected
-          ? 'bg-primary-green border-2 border-primary-green text-hunter shadow-md scale-[1.02]'
-          : 'bg-primary-green/5 border-2 border-transparent text-primary-green hover:bg-primary-green/10 hover:border-primary-green/20'
-          }`}
+        className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition-all ${
+          isSelected
+            ? 'bg-primary-green border-2 border-primary-green text-hunter shadow-md scale-[1.02]'
+            : 'bg-primary-green/5 border-2 border-transparent text-primary-green hover:bg-primary-green/10 hover:border-primary-green/20'
+        }`}
       >
         <div className="flex items-center gap-3">
           {IconComponent && <IconComponent size={18} />}

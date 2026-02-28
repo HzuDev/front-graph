@@ -24,11 +24,15 @@ async function loadGeoJson(): Promise<MunicipalityGeoJSON> {
 
   fetchPromise = (async () => {
     const startTime = performance.now();
-    console.log('[useMapGeometry] 🚀 Cargando geometrías desde municipalities-index.json...');
+    console.log(
+      '[useMapGeometry] 🚀 Cargando geometrías desde municipalities-index.json...'
+    );
 
     const res = await fetch(buildPath('/municipalities-index.json'));
     if (!res.ok) {
-      throw new Error(`Error cargando municipalities-index.json: ${res.status}`);
+      throw new Error(
+        `Error cargando municipalities-index.json: ${res.status}`
+      );
     }
 
     const entries = (await res.json()) as MunicipalityEntry[];

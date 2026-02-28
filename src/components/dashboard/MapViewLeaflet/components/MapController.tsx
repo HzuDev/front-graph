@@ -25,10 +25,7 @@ const mapReducer = (state: MapState, action: MapAction): MapState => {
 };
 
 const MapController = memo(
-  ({
-    selectedFeatureId,
-    features,
-  }: MapControllerProps) => {
+  ({ selectedFeatureId, features }: MapControllerProps) => {
     const map = useMap();
     const [state, dispatch] = useReducer(mapReducer, { hasZoomed: false });
     const { hasZoomed } = state;
@@ -83,14 +80,17 @@ const MapController = memo(
               (coord) => [coord[1], coord[0]] as LatLngExpression
             )
           );
-          setTimeout(() => {
-            map.fitBounds(bounds, {
-              padding: [50, 50],
-              maxZoom: 13,
-              duration: hasZoomed ? 1 : 1.5,
-            });
-            if (!hasZoomed) dispatch({ type: 'SET_ZOOMED', payload: true });
-          }, hasZoomed ? 0 : 300);
+          setTimeout(
+            () => {
+              map.fitBounds(bounds, {
+                padding: [50, 50],
+                maxZoom: 13,
+                duration: hasZoomed ? 1 : 1.5,
+              });
+              if (!hasZoomed) dispatch({ type: 'SET_ZOOMED', payload: true });
+            },
+            hasZoomed ? 0 : 300
+          );
         } else if (!hasZoomed) {
           dispatch({ type: 'SET_ZOOMED', payload: true });
         }
