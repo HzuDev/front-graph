@@ -10,6 +10,7 @@ export interface MapViewProps {
   ) => void;
   onMapReset?: () => void;
   selectedEntityId?: string | null;
+  selectedDepartment?: string | null;
 }
 
 export interface MunicipalityFeature {

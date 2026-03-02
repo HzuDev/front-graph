@@ -1,5 +1,6 @@
 export interface MapViewWrapperProps {
   selectedEntityId?: string | null;
+  selectedDepartment?: string | null;
   onMunicipalitySelect?: (
     municipality: {
       name: string;

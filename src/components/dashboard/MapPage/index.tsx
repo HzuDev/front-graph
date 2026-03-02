@@ -21,19 +21,22 @@ const MapPage: React.FC = () => {
     debouncedSearch,
   } = useMapFilters();
 
+  const [selectedMunicipality, setSelectedMunicipality] = useState<{
+    name: string;
+    department: string;
+    entityId: string;
+    hasEntity?: boolean;
+  } | null>(null);
+
   const { entities, loading, mapZoomTarget } = useMapData(
     selectedDepartment,
     selectedType,
-    debouncedSearch
+    debouncedSearch,
+    selectedMunicipality?.entityId || null
   );
 
   const [showFilters, setShowFilters] = useState(true);
   const [selectedEntityId, setSelectedEntityId] = useState<string | null>(null);
-  const [selectedMunicipality, setSelectedMunicipality] = useState<{
-    name: string;
-    department: string;
-    hasEntity?: boolean;
-  } | null>(null);
 
   const handleMunicipalitySelect = useCallback(
     (
@@ -48,6 +51,7 @@ const MapPage: React.FC = () => {
       setSelectedMunicipality({
         name: municipality.name,
         department: municipality.department,
+        entityId: municipality.entityId,
         hasEntity: municipality.hasEntity,
       });
 
@@ -185,6 +189,9 @@ const MapPage: React.FC = () => {
             <div className="flex-2 min-h-100 lg:h-full relative overflow-hidden bg-primary-green rounded-[3rem] border border-primary-green/10 shadow-2xl">
               <MapViewWrapper
                 selectedEntityId={mapZoomTarget || selectedEntityId}
+                selectedDepartment={
+                  selectedDepartment === 'Todos' ? null : selectedDepartment
+                }
                 onMunicipalitySelect={handleMunicipalitySelect}
                 onMapReset={handleMapReset}
               />

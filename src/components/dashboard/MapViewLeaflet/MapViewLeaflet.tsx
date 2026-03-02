@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
+import React, {
+  useReducer,
+  useEffect,
+  useCallback,
+  useMemo,
+  memo,
+} from 'react';
 import {
   MapContainer,
   TileLayer,
@@ -28,7 +34,6 @@ const UserLocationIcon = L.divIcon({
   iconAnchor: [10, 10],
 });
 
-// Import hooks and utilities
 import { useMapGeometry } from './hooks/useMapGeometry';
 import { useUserLocationDetection } from './hooks/useUserLocationDetection';
 import { useMapStyling } from './hooks/useMapStyling';
@@ -38,16 +43,75 @@ import { LEVEL_NAMES } from './constants';
 import MapController from './components/MapController';
 import type { MapViewProps } from './types';
 
+type MapViewState = {
+  selectedFeatureId: string | null;
+  userDetectedFeatureId: string | null;
+  userDetectedFeatureName: string | null;
+  hoveredFeatureId: string | null;
+};
+
+type MapViewAction =
+  | { type: 'SET_SELECTED_FEATURE'; payload: string | null }
+  | { type: 'SET_HOVERED_FEATURE'; payload: string | null }
+  | {
+      type: 'SET_USER_DETECTED_FEATURE';
+      payload: { id: string | null; name: string | null };
+    }
+  | { type: 'RESET_MAP' };
+
+const mapReducer = (
+  state: MapViewState,
+  action: MapViewAction
+): MapViewState => {
+  switch (action.type) {
+    case 'SET_SELECTED_FEATURE':
+      return { ...state, selectedFeatureId: action.payload };
+    case 'SET_HOVERED_FEATURE':
+      return { ...state, hoveredFeatureId: action.payload };
+    case 'SET_USER_DETECTED_FEATURE':
+      return {
+        ...state,
+        userDetectedFeatureId: action.payload.id,
+        userDetectedFeatureName: action.payload.name,
+        selectedFeatureId: action.payload.id || state.selectedFeatureId,
+      };
+    case 'RESET_MAP':
+      return { ...state, selectedFeatureId: null };
+    default:
+      return state;
+  }
+};
+
 function MapResizer() {
   const map = useMap();
+
   useEffect(() => {
-    const timeouts = [10, 50, 200, 500, 1000].map((ms) =>
-      setTimeout(() => {
-        map.invalidateSize();
-      }, ms)
+    const timeouts = [50, 200, 500].map((ms) =>
+      setTimeout(() => map.invalidateSize(), ms)
     );
-    return () => timeouts.forEach(clearTimeout);
+
+    const container = map.getContainer();
+    let raf = 0;
+    const ro = new ResizeObserver(() => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => map.invalidateSize());
+    });
+    ro.observe(container);
+
+    const onAfterSwap = () => {
+      setTimeout(() => map.invalidateSize(), 0);
+      setTimeout(() => map.invalidateSize(), 150);
+    };
+    document.addEventListener('astro:after-swap', onAfterSwap);
+
+    return () => {
+      timeouts.forEach(clearTimeout);
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+      document.removeEventListener('astro:after-swap', onAfterSwap);
+    };
   }, [map]);
+
   return null;
 }
 
@@ -55,33 +119,36 @@ const MapViewLeaflet: React.FC<MapViewProps> = ({
   onMunicipalitySelect,
   onMapReset,
   selectedEntityId,
+  selectedDepartment,
 }) => {
-  const [selectionState, setSelectionState] = useState<{
-    selectedFeatureId: string | null;
-    userDetectedFeatureId: string | null;
-    userDetectedFeatureName: string | null;
-  }>({
+  const [state, dispatch] = useReducer(mapReducer, {
     selectedFeatureId: selectedEntityId || null,
     userDetectedFeatureId: null,
     userDetectedFeatureName: null,
+    hoveredFeatureId: null,
   });
-  const [hoveredFeatureId, setHoveredFeatureId] = useState<string | null>(null);
 
   const { geoJsonData, loading, error, ready } = useMapGeometry();
   const userLocation = useUserLocationDetection();
-  const { selectedFeatureId, userDetectedFeatureId, userDetectedFeatureName } =
-    selectionState;
+  const {
+    selectedFeatureId,
+    userDetectedFeatureId,
+    userDetectedFeatureName,
+    hoveredFeatureId,
+  } = state;
   const { getFeatureStyle } = useMapStyling(
     selectedFeatureId,
     userDetectedFeatureId,
-    hoveredFeatureId
+    hoveredFeatureId,
+    selectedDepartment
   );
   const { onEachFeature } = useMapEventHandlers(
     userDetectedFeatureId,
     onMunicipalitySelect,
     (id: string | null) =>
-      setSelectionState((prev) => ({ ...prev, selectedFeatureId: id })),
-    setHoveredFeatureId
+      dispatch({ type: 'SET_SELECTED_FEATURE', payload: id }),
+    (id: string | null) =>
+      dispatch({ type: 'SET_HOVERED_FEATURE', payload: id })
   );
 
   useEffect(() => {
@@ -94,13 +161,15 @@ const MapViewLeaflet: React.FC<MapViewProps> = ({
       });
 
       if (detected) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setSelectionState((prev) => ({
-          ...prev,
-          userDetectedFeatureId: detected.properties.id,
-          userDetectedFeatureName: detected.properties.name,
-          selectedFeatureId: detected.properties.id,
-        }));
+        queueMicrotask(() => {
+          dispatch({
+            type: 'SET_USER_DETECTED_FEATURE',
+            payload: {
+              id: detected.properties.id,
+              name: detected.properties.name,
+            },
+          });
+        });
 
         const levelName =
           LEVEL_NAMES[detected.properties.level] || 'Desconocido';
@@ -134,15 +203,17 @@ const MapViewLeaflet: React.FC<MapViewProps> = ({
   }, [userLocation, geoJsonData, userDetectedFeatureId, onMunicipalitySelect]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setSelectionState((prev) => ({
-      ...prev,
-      selectedFeatureId: selectedEntityId || null,
-    }));
+    const id = setTimeout(() => {
+      dispatch({
+        type: 'SET_SELECTED_FEATURE',
+        payload: selectedEntityId || null,
+      });
+    }, 0);
+    return () => clearTimeout(id);
   }, [selectedEntityId]);
 
   const handleResetMap = useCallback(() => {
-    setSelectionState((prev) => ({ ...prev, selectedFeatureId: null }));
+    dispatch({ type: 'RESET_MAP' });
     if (onMapReset) {
       onMapReset();
     } else if (onMunicipalitySelect) {
@@ -161,7 +232,6 @@ const MapViewLeaflet: React.FC<MapViewProps> = ({
     center: LatLngExpression;
     zoom: number;
   }>(() => {
-    // Siempre mostrar mapa completo de Bolivia por defecto según requerimiento
     return { center: [-16.5, -64.5], zoom: 5.5 };
   }, []);
 
@@ -213,7 +283,6 @@ const MapViewLeaflet: React.FC<MapViewProps> = ({
           <GeoJSON
             key="municipal-polygons"
             data={geoJsonData}
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             style={(feature) => getFeatureStyle(feature as any)}
             onEachFeature={onEachFeature}
           />
@@ -238,10 +307,10 @@ const MapViewLeaflet: React.FC<MapViewProps> = ({
         <MapController
           selectedFeatureId={selectedFeatureId}
           features={geoJsonData.features}
+          selectedDepartment={selectedDepartment}
         />
       </MapContainer>
 
-      {/* Botón Reiniciar Mapa */}
       <div className="absolute top-4 right-4 z-1000">
         <button
           onClick={handleResetMap}
@@ -252,7 +321,6 @@ const MapViewLeaflet: React.FC<MapViewProps> = ({
         </button>
       </div>
 
-      {/* User Location Banner */}
       {userLocation && userDetectedFeatureName && (
         <div className="absolute top-4 left-4 right-4 bg-emerald-700/90 backdrop-blur-md text-white p-4 rounded-2xl shadow-2xl z-1000 animate-fadeIn border border-white/10">
           <div className="flex items-center justify-between">
@@ -271,7 +339,6 @@ const MapViewLeaflet: React.FC<MapViewProps> = ({
         </div>
       )}
 
-      {/* Legend */}
       <div className="absolute bottom-4 left-4 bg-black/80 backdrop-blur-sm border border-white/5 rounded-xl p-3 shadow-xl z-999">
         <p className="text-xs font-bold mb-2 text-gray-300">
           Niveles Administrativos
