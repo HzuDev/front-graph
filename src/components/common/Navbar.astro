@@ -1,6 +1,7 @@
 ---
 import { Globe, Menu, X } from 'lucide-react';
 import { buildPath } from '../../lib/utils/paths';
+import TestBanner from './TestBanner.astro';
 
 const { pathname } = Astro.url;
 
@@ -22,8 +23,14 @@ const navLinks = [
 ];
 ---
 
-<nav class="fixed top-0 w-full z-50 px-4 md:px-6 py-4">
-  <div
+<!-- Banner fixed at the top -->
+<header class="fixed top-0 w-full z-50 flex flex-col">
+  <div class="w-full">
+    <TestBanner />
+  </div>
+
+  <nav class="w-full px-4 md:px-6 py-4 transition-all" id="main-nav">
+    <div
     class="max-w-7xl mx-auto bg-neutral-white/80 backdrop-blur-xl border border-primary-green/5 rounded-2xl px-4 md:px-6 py-3 flex justify-between items-center shadow-sm"
   >
     <div class="flex items-center gap-3 z-50">
@@ -101,6 +108,7 @@ const navLinks = [
     </div>
   </div>
 </nav>
+</header>
 <!-- Modo movil -->
 <div
   id="mobile-menu"
