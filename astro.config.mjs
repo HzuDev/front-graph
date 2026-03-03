@@ -72,7 +72,8 @@ export default defineConfig({
       include: ['leaflet', 'react-leaflet'],
     },
     ssr: {
-      external: ['leaflet', 'react-leaflet'],
+
+      noExternal: ['leaflet', 'react-leaflet'],
     },
     worker: {
       format: 'es',

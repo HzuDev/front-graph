@@ -13,25 +13,8 @@ import {
   Popup,
   useMap,
 } from 'react-leaflet';
-import type { LatLngExpression } from 'leaflet';
+import type { LatLngExpression, Icon, DivIcon } from 'leaflet';
 import { MapPin, RotateCcw } from 'lucide-react';
-import L from 'leaflet';
-import iconUrl from 'leaflet/dist/images/marker-icon.png?url';
-import iconShadowUrl from 'leaflet/dist/images/marker-shadow.png?url';
-
-const DefaultIcon = L.icon({
-  iconUrl: iconUrl,
-  shadowUrl: iconShadowUrl,
-  iconAnchor: [12, 41],
-});
-L.Marker.prototype.options.icon = DefaultIcon;
-
-const UserLocationIcon = L.divIcon({
-  className: 'custom-user-marker',
-  html: '<div style="background-color: #10b981; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);"></div>',
-  iconSize: [20, 20],
-  iconAnchor: [10, 10],
-});
 
 import { useMapGeometry } from './hooks/useMapGeometry';
 import { useUserLocationDetection } from './hooks/useUserLocationDetection';
@@ -53,9 +36,9 @@ type MapViewAction =
   | { type: 'SET_SELECTED_FEATURE'; payload: string | null }
   | { type: 'SET_HOVERED_FEATURE'; payload: string | null }
   | {
-      type: 'SET_USER_DETECTED_FEATURE';
-      payload: { id: string | null; name: string | null };
-    }
+    type: 'SET_USER_DETECTED_FEATURE';
+    payload: { id: string | null; name: string | null };
+  }
   | { type: 'RESET_MAP' };
 
 const mapReducer = (
@@ -126,6 +109,36 @@ const MapViewLeaflet: React.FC<MapViewProps> = ({
     userDetectedFeatureName: null,
     hoveredFeatureId: null,
   });
+
+  // Leaflet icon state — initialized client-side only via useEffect.
+  // useEffect never runs during SSR, so this is safe with client:load.
+  const [leafletIcons, setLeafletIcons] = React.useState<{
+    default: Icon;
+    userLocation: DivIcon;
+  } | null>(null);
+
+  useEffect(() => {
+    // Dynamic import ensures leaflet (and its `window` access) only loads in browser
+    import('leaflet').then((L) => {
+      import('leaflet/dist/images/marker-icon.png?url').then(({ default: iconUrl }) => {
+        import('leaflet/dist/images/marker-shadow.png?url').then(({ default: iconShadowUrl }) => {
+          const defaultIcon = L.default.icon({
+            iconUrl,
+            shadowUrl: iconShadowUrl,
+            iconAnchor: [12, 41],
+          });
+          L.default.Marker.prototype.options.icon = defaultIcon;
+          const userLocationIcon = L.default.divIcon({
+            className: 'custom-user-marker',
+            html: '<div style="background-color: #10b981; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);"></div>',
+            iconSize: [20, 20],
+            iconAnchor: [10, 10],
+          });
+          setLeafletIcons({ default: defaultIcon, userLocation: userLocationIcon });
+        });
+      });
+    });
+  }, []);
 
   const { geoJsonData, loading, error, ready } = useMapGeometry();
   const userLocation = useUserLocationDetection();
@@ -287,10 +300,10 @@ const MapViewLeaflet: React.FC<MapViewProps> = ({
           />
         )}
 
-        {userLocation && (
+        {userLocation && leafletIcons && (
           <Marker
             position={[userLocation.lat, userLocation.lon]}
-            icon={UserLocationIcon}
+            icon={leafletIcons.userLocation}
           >
             <Popup>
               <div className="text-center">
