@@ -9,7 +9,6 @@ import React, {
   useState,
 } from 'react';
 
-
 import type { LatLngExpression, Icon, DivIcon } from 'leaflet';
 import { MapPin, RotateCcw } from 'lucide-react';
 
