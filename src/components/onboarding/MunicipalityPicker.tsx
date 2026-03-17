@@ -223,6 +223,16 @@ export default function MunicipalityPicker() {
     dispatch({ type: 'SET_SELECTED', payload: item });
     dispatch({ type: 'SET_QUERY', payload: item.name });
     dispatch({ type: 'SET_SHOW_RESULTS', payload: false });
+
+    const locationData: LocationData = {
+      lat: 0,
+      lon: 0,
+      municipalityId: item.id,
+      municipalityName: item.name,
+      departmentName: item.department,
+      detectionMethod: 'manual',
+    };
+    localStorage.setItem('detected_municipality', JSON.stringify(locationData));
   };
 
   const handleGpsClick = useCallback(async () => {
@@ -355,10 +365,6 @@ export default function MunicipalityPicker() {
             },
           },
         });
-
-        setTimeout(() => {
-          window.location.href = buildPath('/onboarding/3');
-        }, 900);
       } else {
         throw new Error('out-of-range');
       }
@@ -388,22 +394,6 @@ export default function MunicipalityPicker() {
       });
     }
   }, [gpsState, index, indexLoaded]);
-
-  const handleContinue = () => {
-    if (!selected) return;
-
-    const locationData: LocationData = {
-      lat: 0,
-      lon: 0,
-      municipalityId: selected.id,
-      municipalityName: selected.name,
-      departmentName: selected.department,
-      detectionMethod: 'manual',
-    };
-    localStorage.setItem('detected_municipality', JSON.stringify(locationData));
-
-    window.location.href = buildPath('/onboarding/3');
-  };
 
   const gpsButtonContent = () => {
     if (gpsState === 'detecting') {
@@ -531,14 +521,6 @@ export default function MunicipalityPicker() {
             )}
         </div>
 
-        <button
-          onClick={handleContinue}
-          disabled={!selected}
-          className="w-full bg-primary-green/5 p-5 rounded-2xl font-bold text-lg hover:bg-primary-green/10 text-primary-green transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between group"
-        >
-          <span>Continuar</span>
-          <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-        </button>
       </div>
     </div>
   );
